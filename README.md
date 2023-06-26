@@ -22,7 +22,7 @@ The IDE (Integrated Development Environment) provides a user-friendly interface 
 ### Emulation Display
 The emulator's display simulates a 512 x 64 bit screen, which can be manipulated using the SIG command. Users can interact with the display by writing Assembly code that controls the pixels and colors on the screen. This provides a visual representation of their programs and allows for experimentation and creativity.
 
-![Emulation Display](https://github.com/joshua-cotugno/Assemblr/README-resources/display.svg)
+![Emulation Display](https://raw.githubusercontent.com/joshua-cotugno/Assemblr/main/README-resources/display.svg?token=GHSAT0AAAAAACEIBKQDHAQLIR7AT2C7K56IZEZVMAA)
 
 ## What Makes It Complex?
 The Assemblr Emulator project involves several challenging aspects, including:
