@@ -34,9 +34,17 @@ The Assemblr Emulator project involves several challenging aspects, including:
 
 - Design progressive puzzles to be written in the language
 
-<br><br>
+<br><br><br><br><br><br><br><br>
 ****
+****
+## Parts of the "Emulator"
 
+### RAM
+*_Random Access Memory_*
+- Contains
+### ROM
+*_Read Only Memory_*
+<br><br>
 ## Instruction Set
 | Number |      |   | Opcode | Instruction            | Syntax                                           | Description                                             |
 |--------|------|---|--------|------------------------|--------------------------------------------------|---------------------------------------------------------|
@@ -56,6 +64,4 @@ The Assemblr Emulator project involves several challenging aspects, including:
 | 13     | `1101` | D | `JGZ`    | Jump if Greater than `0` | `JGZ <addr>`                                       | Jumps to a specified memory address if accumulator >` `0`  |
 | 14     | `1110` | E | `JLZ`    | Jump is Less than `0`    | `JLZ <addr>`                                       | Jumps to a specified memory address if accumulator < `0`  |
 | 15     | `1111` | F | `SIG`    | Send Signal            | `SIG <signal> <x> <y>` <port>`                              | Sends a signal to a port                                |
-
-
 
