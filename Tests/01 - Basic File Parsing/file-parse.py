@@ -35,6 +35,7 @@ def execute(line):
         quit()
     elif opcode == "SAV":
         # Code to execute if the opcode is "SAV"
+        RAM = {RAM,params[0],ACCUMULATOR}
         print("Save value")
     elif opcode == "LDA":
         # Code to execute if the opcode is "LDA"
