@@ -49,10 +49,13 @@ def pop():
 LINE_COUNTER = 0
 
 # set global VERBOSE
-global VERBOSE
+VERBOSE = None
 
 # Initialise SAVs
-global SAVs
+SAVs = {}
+
+# Initialise Ports
+PORTS = [0] * 16 # Makes 16 different "port" options
 
 # Load the program into RAM
 def load_program(program_file):
@@ -82,6 +85,17 @@ def load_program(program_file):
                 # If the opcode is not SAV, increment the line counter
                 LINE_COUNTER += 1
 
+# Debugging option to show output:
+def devprint():
+    global VERBOSE
+    if VERBOSE:
+        print("ACCUMULATOR:", ACCUMULATOR)
+        show_ram()
+        print("LINE_COUNTER:", LINE_COUNTER)
+        print("STACK:", STACK)
+        print("SAVs:", SAVs)
+        print("PORTS:", PORTS)
+
 # MNEMONICS
 # HLT - Halt the program
 def HLT():
@@ -109,9 +123,7 @@ def SAV(value, name):
         print("No available space in RAM to save the value.")
         exit(1)
 
-    if VERBOSE:
-        # print out RAM in red
-        print("\u001b[31mRAM:\n", RAM, "\u001b[0m")
+    
 
 
 # LDA - Load the value at the address specified (from SAVs dictionary) into the accumulator
