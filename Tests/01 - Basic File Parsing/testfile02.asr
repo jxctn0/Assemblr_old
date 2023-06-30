@@ -7,14 +7,18 @@ SUB NUM1
 
 
 
-NUM1   DAT 10    ; First number
-NUM2   DAT 5     ; Second number
-RESULT DAT       ; Result of addition
+; NUM1   DAT 10    ; First number
+; NUM2   DAT 5     ; Second number
+ADD 5
+SAV NUM2
+SUB NUM2
+
 
 ; Main program
-START: LDA NUM1   ; Load the first number into the accumulator
-       ADD NUM2   ; Add the second number to the accumulator
-       OUT        ; Output the result
-       HLT        ; Halt the program
+;START: 
+LDA NUM1   ; Load the first number into the accumulator
+ADD NUM2   ; Add the second number to the accumulator
+OUT        ; Output the result
+HLT        ; Halt the program
 
 

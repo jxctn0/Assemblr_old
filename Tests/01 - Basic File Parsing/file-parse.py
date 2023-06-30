@@ -5,22 +5,60 @@ import argparse
 # Added
 
 # GLOBALS
-# global ACCUMULATOR
 ACCUMULATOR = 0
-RAM_SIZE = 1024
-RAM = [[0]*RAM_SIZE]
+
+# initialise RAM
+RAM_SIZE = 255 # Specify the desired size of the dictionary (256 for keys 0 to ff)
+RAM = {hex(i)[2:].zfill(2): 0 for i in range(RAM_SIZE)}
+
+print("RAM", RAM)
+print(len(RAM))
+
+# initialise STACK
+global STACK
 STACK = []
+
+# initialise line counter
+LINE_COUNTER = 0
+
+
+# MNEMONICS
+# HLT - Halt the program
+def hlt():
+    quit()
+
+# SAV - Save the value in the accumulator to the address specified
+def SAV(value):
+    global RAM
+    # Find the first available space in the RAM dictionary
+    available_key = None
+    for key, val in RAM.items():
+        if val == 0:
+            available_key = key
+            break
+    
+    if available_key is not None:
+        # Update the RAM dictionary with the value
+        RAM[available_key] = value
+        print(f"Value {value} saved at key {available_key}")
+    else:
+        print("No available space in RAM to save the value.")
+        MemoryError()
+    print("RAM", RAM)
+
+
 
 # Convert each line into an array
 def tokenise(line):
     # remove comments if any
     line = line.split(";")[0].strip()
-    tokens = re.split(r'\s+', line) #
+    #remove any whitespace
+    tokens = re.split(r'\s+', line)
     return tokens
 
-# 'run' file
+# Execute a line
 def execute(line):
-    global ACCUMULATOR
+    global ACCUMULATOR, RAM, STACK, LINE_COUNTER
 
     tokens = tokenise(line)
     print("t", tokens)
@@ -35,7 +73,7 @@ def execute(line):
         quit()
     elif opcode == "SAV":
         # Code to execute if the opcode is "SAV"
-        RAM = {RAM,params[0],ACCUMULATOR}
+        SAV(params[0])
         print("Save value")
     elif opcode == "LDA":
         # Code to execute if the opcode is "LDA"
@@ -84,7 +122,7 @@ def execute(line):
         print("Delay")
     else:
         # Code to execute if the opcode doesn't match any of the given opcodes
-        print("Unknown opcode " + opcode)
+        print(f"Line {LINE_COUNTER} Unknown opcode " + opcode)
         quit()
 
 # Argument handling
@@ -102,11 +140,14 @@ parser.add_argument('-f','--filename', metavar='FILE', type=str,
 args = parser.parse_args()
 
 
+
+
 ''' MAIN LOOP '''
 if __name__ == '__main__':
     with open(args.filename) as program_file:
+        # Execute each line iteratively
         for line in program_file:
-            print(line)
-            execute(line)
-            if args.verbose:
-                 print(u"\u001b[31mACCUMULATOR:", ACCUMULATOR, u"\u001b[0m")
+            if line != "\n":
+                execute(line)
+                if args.verbose:
+                    print(u"\u001b[31mACCUMULATOR:", ACCUMULATOR, u"\u001b[0m")
