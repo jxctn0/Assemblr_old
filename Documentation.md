@@ -1,6 +1,6 @@
 # Assemblr Documentation
 
-
+## Opcodes
 
 | Number |      |   | Opcode | Instruction            | Syntax                                           | Description                                             |
 |--------|------|---|--------|------------------------|--------------------------------------------------|---------------------------------------------------------|
@@ -23,3 +23,7 @@
 
 
 
+## How the emulator works
+
+# Version Alpha 0.0.1
+Assumes that each file is in "ROM" (_.asrom_) which is directly accessible to the CPU, similar to a Game Cartridge for a N64

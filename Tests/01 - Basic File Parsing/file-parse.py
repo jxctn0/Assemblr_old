@@ -21,10 +21,14 @@ STACK = []
 # initialise line counter
 LINE_COUNTER = 0
 
+# set global VERBOSE
+global VERBOSE
 
 # MNEMONICS
 # HLT - Halt the program
-def hlt():
+def HLT():
+    if VERBOSE:
+        print(u"\u001b[32mHalt program\u001b[0m")
     quit()
 
 # SAV - Save the value in the accumulator to the address specified
@@ -44,9 +48,24 @@ def SAV(value):
     else:
         print("No available space in RAM to save the value.")
         MemoryError()
-    print("RAM", RAM)
+        
+    if VERBOSE:
+        # print out RAM in red
+        print(u"\u001b[31mRAM:\n", RAM, u"\u001b[0m")
 
+# LDA - Load the value at the address specified into the accumulator
+def LDA(name):
+    global ACCUMULATOR, RAM, VERBOSE#
 
+    ACCUMULATOR = RAM[name]
+
+    if VERBOSE:
+        print(u"\u001b[32mLoad value\u001b[0m")
+
+def ADD(value):
+    global ACCUMULATOR
+    ACCUMULATOR += int(value)
+    print("Add values")
 
 # Convert each line into an array
 def tokenise(line):
@@ -69,18 +88,18 @@ def execute(line):
 
     if opcode == "HLT":
         # Code to execute if the opcode is "HLT"
-        print("Halt program")
-        quit()
+        HLT()
     elif opcode == "SAV":
         # Code to execute if the opcode is "SAV"
         SAV(params[0])
         print("Save value")
     elif opcode == "LDA":
         # Code to execute if the opcode is "LDA"
+        LDA()
         print("Load value")
     elif opcode == "ADD":
         # Code to execute if the opcode is "ADD"
-        ACCUMULATOR += int(params[0])
+        ADD()
         print("Add values")
     elif opcode == "SUB":
         # Code to execute if the opcode is "SUB"
@@ -131,6 +150,7 @@ parser = argparse.ArgumentParser(description='')
 # Add arguments
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='Enable Verbose')
+
 # Add the 'filename' argument
 parser.add_argument('-f','--filename', metavar='FILE', type=str,
                     help='The input filename')
@@ -139,7 +159,7 @@ parser.add_argument('-f','--filename', metavar='FILE', type=str,
 #set args
 args = parser.parse_args()
 
-
+VERBOSE = args.verbose
 
 
 ''' MAIN LOOP '''
