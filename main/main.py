@@ -13,8 +13,8 @@ ACCUMULATOR = 0
 RAM_SIZE = 255  # Specify the desired size of the dictionary (256 for keys 0 to ff)
 RAM = {hex(i)[2:].zfill(2): 0 for i in range(RAM_SIZE)}
 
-print("RAM", RAM)
-print(len(RAM))
+# print("RAM", RAM)
+# print(len(RAM))
 
 # Show RAM in neat, tabulated format of 4 columns
 def show_ram():
@@ -129,6 +129,10 @@ def SAV(value, name):
 # LDA - Load the value at the address specified (from SAVs dictionary) into the accumulator
 def LDA(name):
     global ACCUMULATOR, RAM, SAVs, VERBOSE
+    # check if name is in SAVs
+    if name not in SAVs:
+        print("Named RAM address not found")
+        exit(2)
     ACCUMULATOR = RAM[SAVs[name][0]]
     if VERBOSE:
         print("Loaded value")
@@ -137,8 +141,13 @@ def LDA(name):
 def ADD(value):
     global ACCUMULATOR, VERBOSE
     ACCUMULATOR += int(value)
+    # check if accumulator is greater than set size
+    if ACCUMULATOR > BIT_LENGTH:
+        # kill program
+        print("Accumulator Overflow Error")
+        exit(3)
     if VERBOSE:
-        print("Add values")
+        print("Added value ", value, " to accumulator")
 
 # SUB - Subtract the value from the accumulator
 def SUB(value):

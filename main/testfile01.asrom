@@ -1,0 +1,5 @@
+LDA           123
+ADD 10 ; comment
+BXR 10
+OUT ; comment
+HLT

@@ -2,6 +2,7 @@
     "system":{
         "ram_capacity":1024,
         "cpu_speed":8,
+        "cpu_bits":8,
         "stack_length":16,
         "devices":{
             "leds":{
@@ -40,10 +41,9 @@
                 "rgb1":{
                     "id":"rgb-led-1",
                     "address-r":"09",
-                    "address-g":"a",
-                    "address-b":"b",
-                    "address-w":"c"
-
+                    "address-g":"0a",
+                    "address-b":"0b",
+                    "address-w":"0c"
                 }
             },
             "other":{
