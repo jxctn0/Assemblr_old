@@ -1,0 +1,54 @@
+{
+    "system":{
+        "ram_capacity":1024,
+        "cpu_speed":8,
+        "stack_length":16,
+        "devices":{
+            "leds":{
+                "red1":{
+                    "id":"red-led-1",
+                    "address":"01"
+                },
+                "red2":{
+                    "id":"red-led-2",
+                    "address":"02"
+                },
+                "yellow1":{
+                    "id":"yellow-led-1",
+                    "address":"03"
+                },
+                "yellow2":{
+                    "id":"yellow-led-2",
+                    "address":"04"
+                },
+                "green1":{
+                    "id":"green-led-1",
+                    "address":"05"
+                },
+                "green2":{
+                    "id":"green-led-2",
+                    "address":"06"
+                },
+                "blue1":{
+                    "id":"blue-led-1",
+                    "address":"07"
+                },
+                "blue2":{
+                    "id":"blue-led-2",
+                    "address":"08"
+                },
+                "rgb1":{
+                    "id":"rgb-led-1",
+                    "address-r":"09",
+                    "address-g":"a",
+                    "address-b":"b",
+                    "address-w":"c"
+
+                }
+            },
+            "other":{
+
+            }
+        }
+    }
+}
