@@ -1,5 +1,4 @@
-LDA           123
 ADD 10 ; comment
-BXR 10
+ADD 14 ; another comment
 OUT ; comment
 HLT

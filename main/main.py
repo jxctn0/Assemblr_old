@@ -13,8 +13,9 @@ ACCUMULATOR = 0
 RAM_SIZE = 255  # Specify the desired size of the dictionary (256 for keys 0 to ff)
 RAM = {hex(i)[2:].zfill(2): 0 for i in range(RAM_SIZE)}
 
-# print("RAM", RAM)
-# print(len(RAM))
+global BIT_LENGTH
+BIT_LENGTH = 1024
+
 
 # Show RAM in neat, tabulated format of 4 columns
 def show_ram():
@@ -269,11 +270,13 @@ def execute(line):
     global ACCUMULATOR, RAM, STACK, LINE_COUNTER
 
     tokens = tokenise(line)
-    print("t", tokens)
 
     opcode = tokens[0]
     params = tokens[1:]
-    print("p", params)
+
+    if VERBOSE:
+        print("t", tokens)
+        print("p", params)
 
         
     if opcode == "HLT":
@@ -329,7 +332,7 @@ def execute(line):
         DLY(params[0])
     else:
         # Code to execute if the opcode doesn't match any of the given opcodes
-        print("Unknown opcode")
+        print("Unknown opcode", opcode)
 
 # Argument handling
 parser = argparse.ArgumentParser(description="")

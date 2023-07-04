@@ -1,0 +1,6 @@
+INP
+SAV x
+INP
+ADD 99
+OUT
+HLT
