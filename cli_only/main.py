@@ -32,18 +32,23 @@ STACK = []
 
 
 # initialise STACK functions
+# push if stack isn't full
 def push(value):
     global STACK
-    STACK.append(value)
-    # append() adds an item to the end of the list
+    if len(STACK) < 16:
+        STACK.append(value)
+    else:
+        print("Stack Overflow Error")
+        exit(4)
 
-
+# pop if stack isn't empty
 def pop():
     global STACK
-    return STACK.pop()
-
-
-# pop() returns the last item in the list and removes it from the list
+    if len(STACK) > 0:
+        return STACK.pop()
+    else:
+        print("Stack Underflow Error")
+        exit(5)
 
 
 # initialise line counter
@@ -123,9 +128,6 @@ def SAV(value, name):
     else:
         print("No available space in RAM to save the value.")
         exit(1)
-
-    
-
 
 # LDA - Load the value at the address specified (from SAVs dictionary) into the accumulator
 def LDA(name):
