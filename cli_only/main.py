@@ -4,14 +4,13 @@ import re
 import argparse
 import time
 
-# Added
-
 # GLOBALS
 ACCUMULATOR = 0
 
 # initialise RAM
 RAM_SIZE = 255  # Specify the desired size of the dictionary (256 for keys 0 to ff)
 RAM = {hex(i)[2:].zfill(2): 0 for i in range(RAM_SIZE)}
+NAMED_ADDRESSES = {}
 
 global BIT_LENGTH
 BIT_LENGTH = 1024
@@ -57,8 +56,6 @@ LINE_COUNTER = 0
 # set global VERBOSE
 VERBOSE = None
 
-# Initialise SAVs
-SAVs = {}
 
 # Initialise Ports
 PORTS = [0] * 16 # Makes 16 different "port" options
@@ -90,6 +87,7 @@ def load_program(program_file):
             else:
                 # If the opcode is not SAV, increment the line counter
                 LINE_COUNTER += 1
+    
 
 # Debugging option to show output:
 def devprint():
@@ -111,34 +109,26 @@ def HLT():
 
 
 # SAV - Save the value in the accumulator to the address specified
-def SAV(value, name):
-    global RAM, SAVs
-    # Find the first available space in the RAM dictionary
-    available_key = None
-    for key, val in RAM.items():
-        if val == 0:
-            available_key = key
-            break
+def SAV(value, name, location):
+    global RAM,NAMED_ADDRESSES, VERBOSE
+    #convert location from hex to int
+    location = int(location, 16)
 
-    if available_key is not None:
-        # Update the RAM dictionary with the value, renaming the key with the variable name
-        RAM[available_key] = int(value)
-        SAVs[name] = [available_key]
-
+    # check if address is empty in RAM
+    if RAM[location] == 0:
+        RAM[location] = int(value)
+        NAMED_ADDRESSES[name] = location
     else:
-        print("No available space in RAM to save the value.")
+        print(f"Address {NAMED_ADDRESSES} already in use")
         exit(1)
 
-# LDA - Load the value at the address specified (from SAVs dictionary) into the accumulator
+
+# LDA - Load the value from the address specified (from NAMED_ADDRESSES dictionary) into the accumulator
 def LDA(name):
-    global ACCUMULATOR, RAM, SAVs, VERBOSE
-    # check if name is in SAVs
-    if name not in SAVs:
-        print("Named RAM address not found")
-        exit(2)
-    ACCUMULATOR = RAM[SAVs[name][0]]
+    global ACCUMULATOR, NAMED_ADDRESSES, VERBOSE, RAM
+    ACCUMULATOR = RAM[NAMED_ADDRESSES[name]]
     if VERBOSE:
-        print("Loaded value")
+        print("Loaded value ", ACCUMULATOR, " from address ", NAMED_ADDRESSES[name], " into accumulator")
         
 # ADD - Add the value to the accumulator
 def ADD(value):
@@ -362,6 +352,11 @@ VERBOSE = args.verbose
 
 """ MAIN LOOP """
 if __name__ == "__main__":
+    # handle no file
+    if args.filename == None:
+        # error message in red using colors class
+        
+        exit(1)
     with open(args.filename) as program_file:
         # Execute each line iteratively
         for line in program_file:
