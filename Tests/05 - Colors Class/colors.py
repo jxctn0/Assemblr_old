@@ -2,35 +2,49 @@
 class colors:
     class foreground:
         # Colors for text
-        BLACK = "\u001b[30m"
-        RED = "\u001b[31m"
-        GREEN = "\u001b[32m"
-        YELLOW = "\u001b[33m"
-        BLUE = "\u001b[34m"
-        PURPLE = "\u001b[35m"
-        CYAN = "\u001b[36m"
-        WHITE = "\u001b[37m"
+        black = "\u001b[30m"
+        red = "\u001b[31m"
+        green = "\u001b[32m"
+        yellow = "\u001b[33m"
+        blue = "\u001b[34m"
+        purple = "\u001b[35m"
+        cyan = "\u001b[36m"
+        white = "\u001b[37m"
 
     class background:
         # Colors for background
-        BLACK = "\u001b[40m"
-        RED = "\u001b[41m"
-        GREEN = "\u001b[42m"
-        YELLOW = "\u001b[43m"
-        BLUE = "\u001b[44m"
-        PURPLE = "\u001b[45m"
-        CYAN = "\u001b[46m"
-        WHITE = "\u001b[47m"
+        black = "\u001b[40m"
+        red = "\u001b[41m"
+        green = "\u001b[42m"
+        yellow = "\u001b[43m"
+        blue = "\u001b[44m"
+        purple = "\u001b[45m"
+        cyan = "\u001b[46m"
+        white = "\u001b[47m"
 
     class formatting:
-        # Reset color
-        RESET = "\u001b[0m"
-        # Formatting
-        BOLD = "\u001b[1m"
-        ITALIC = "\u001b[3m"
-        UNDERLINE = "\u001b[4m"
-        BLINK = "\u001b[5m"
-        REVERSED = "\u001b[7m"
+        """
+        0	Reset all attributes
+        1	Bold (increased intensity)
+        2	Dim (decreased intensity)
+        3	Italic
+        4	Underline
+        5	Slow Blink
+        6	Rapid Blink
+        7	Swap foreground and background colors (reverse format)
+        8	Hide (do not display text)
+        9	Strikethrough
+        """
+        reset = "\u001b[0m"
+        bold = "\u001b[1m"
+        dim = "\u001b[2m"
+        italic = "\u001b[3m"
+        underline = "\u001b[4m"
+        slow_blink = "\u001b[5m"
+        rapid_blink = "\u001b[6m"
+        reverse = "\u001b[7m"
+        hide = "\u001b[8m"
+        strikethrough = "\u001b[9m"
 
 """
 # Tests for each color
@@ -65,4 +79,18 @@ print(colors.BLACK + colors.WHITE + "BLACK + WHITE" + colors.RESET)
 """
 # tests to figure out all codes from 1-100
 for i in range(0, 100):
-    print(colors.foreground.BLACK + colors.background.RED +" \u001b[" + str(i) + "m" + str(i) + " ", colors.formatting.RESET)
+    print(" \u001b[" + str(i) + "m" + str(i) + " " + "\u001b[0m")
+
+"""
+0	Reset all attributes
+1	Bold (increased intensity)
+2	Faint (decreased intensity)
+3	Italicized
+4	Underline
+5	Slow Blink
+6	Rapid Blink
+7	Swap foreground and background colors
+8	Hide (do not display text)
+9	Crossed-out
+"""
+
