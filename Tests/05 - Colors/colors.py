@@ -118,4 +118,13 @@ print(colors.fg.black + colors.bg.white + colors.fmt.strikethrough + "BLACK + WH
 
 # Make "presets" for colors & fmt
 class presets:
-    screen = colors.fg.white + colors.bg.black + colors.fmt.reset
+    screen = colors.fmt.dim + colors.bg.green + colors.fg.black
+    error = colors.fmt.bold + colors.fmt.italic + colors.fg.red + colors.bg.black
+    warning = colors.fmt.bold + colors.fmt.underline + colors.fg.yellow + colors.bg.black
+    success = colors.fmt.bold + colors.fg.green + colors.bg.black
+
+# Tests for presets
+print(presets.screen + "SCREEN" + colors.fmt.reset)
+print(presets.error + "ERROR" + colors.fmt.reset)
+print(presets.warning + "WARNING" + colors.fmt.reset)
+print(presets.success + "SUCCESS" + colors.fmt.reset)
