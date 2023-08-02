@@ -2,28 +2,65 @@
 
 import re
 import argparse
-import time
 
-# GLOBALS
+import instruction_set, startup
+
+# Constants
 ACCUMULATOR = 0
 
-# initialise RAM
-RAM_SIZE = 255  # Specify the desired size of the dictionary (256 for keys 0 to ff)
-RAM = {hex(i)[2:].zfill(2): 0 for i in range(RAM_SIZE)}
-NAMED_ADDRESSES = {}
 
 global BIT_LENGTH
 BIT_LENGTH = 1024
 
+ram = []
 
-# Show RAM in neat, tabulated format of 4 columns
-def show_ram():
-    global RAM
-    print("RAM:")
-    for key, value in RAM.items():
-        print(f"| {key} | {value}", end="\t")
-        if int(key, 16) % 4 == 3:
-            print(" |")
+
+# initialise ROM (instruction set)
+# ROM is a dictionary of functions
+# Each function is a different instruction
+
+ROM = {
+    "HLT": instruction_set.HLT,
+    "SAV": instruction_set.SAV,
+    "LDA": instruction_set.LDA,
+    "ADD": instruction_set.ADD,
+    "SUB": instruction_set.SUB,
+    "JMP": instruction_set.JMP,
+    "JEZ": instruction_set.JEZ,
+    "JGZ": instruction_set.JGZ,
+    "JLZ": instruction_set.JLZ,
+    "JNZ": instruction_set.JNZ,
+    "INP": instruction_set.INP,
+    "OUT": instruction_set.OUT,
+    "SIG": instruction_set.SIG,
+    "BAD": instruction_set.BAD,
+    "BOR": instruction_set.BOR,
+    "BXR": instruction_set.BXR,
+    "DLY": instruction_set.DLY
+}
+
+# Show ram in neat, tabulated format of f columns
+# print out ram
+def showram(ram):
+    print("""
+╔═══╦══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╗
+║   ║  0   │ 1    │ 2    │  3   │  4   │  5   │  6   │  7   │  8   │  9   │  a   │  b   │  c   │  d   │  e   │  f   ║""")
+    
+    for i in range(0, len(ram)):
+
+        print("╟───╫──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────╢")
+        
+        # convert i to a hex string
+        rownum = str(hex(i)[2:].zfill(1))
+
+        print("║ " + rownum, end=" ║")
+
+        for j in range(0, len(ram[str(hex(i)[2:].zfill(2))])-1):
+            print(" " + str(ram[str(hex(i)[2:].zfill(2))][j]), end=" │")
+        print(" " + str(ram[str(hex(i)[2:].zfill(2))][len(ram[str(hex(i)[2:].zfill(2))])-1]), end=" ║\n")
+    
+    print("╚═══╩══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╝\n")
+
 
 # initialise STACK
 global STACK
@@ -60,9 +97,9 @@ VERBOSE = None
 # Initialise Ports
 PORTS = [0] * 16 # Makes 16 different "port" options
 
-# Load the program into RAM
+# Load the program into ram
 def load_program(program_file):
-    global RAM, LINE_COUNTER
+    global ram, LINE_COUNTER
     # Iterate over each line in the file
     for line in program_file:
         # If the line is not empty
@@ -80,8 +117,8 @@ def load_program(program_file):
             if opcode == "SAV":
                 # Get the first parameter
                 value = params[0]
-                # Save the value to the RAM
-                RAM[hex(LINE_COUNTER)[2:].zfill(2)] = int(value)
+                # Save the value to the ram
+                ram[hex(LINE_COUNTER)[2:].zfill(2)] = int(value)
                 # Increment the line counter
                 LINE_COUNTER += 1
             else:
@@ -89,164 +126,21 @@ def load_program(program_file):
                 LINE_COUNTER += 1
     
 
-# Debugging option to show output:
-def devprint():
+# Helper functions
+
+# Error Text
+def error(text, code=0):
+    print("\u001b[31m" + text + "\u001b[0m")
+    startup.errorcodes
+    exit(code)
+
+def verbose():
     global VERBOSE
     if VERBOSE:
         print("ACCUMULATOR:", ACCUMULATOR)
-        show_ram()
         print("LINE_COUNTER:", LINE_COUNTER)
         print("STACK:", STACK)
-        print("SAVs:", SAVs)
         print("PORTS:", PORTS)
-
-# MNEMONICS
-# HLT - Halt the program
-def HLT():
-    if VERBOSE:
-        print("\u001b[32mHalt program\u001b[0m")
-    quit()
-
-
-# SAV - Save the value in the accumulator to the address specified
-def SAV(value, name, location):
-    global RAM,NAMED_ADDRESSES, VERBOSE
-    #convert location from hex to int
-    location = int(location, 16)
-
-    # check if address is empty in RAM
-    if RAM[location] == 0:
-        RAM[location] = int(value)
-        NAMED_ADDRESSES[name] = location
-    else:
-        print(f"Address {NAMED_ADDRESSES} already in use")
-        exit(1)
-
-
-# LDA - Load the value from the address specified (from NAMED_ADDRESSES dictionary) into the accumulator
-def LDA(name):
-    global ACCUMULATOR, NAMED_ADDRESSES, VERBOSE, RAM
-    ACCUMULATOR = RAM[NAMED_ADDRESSES[name]]
-    if VERBOSE:
-        print("Loaded value ", ACCUMULATOR, " from address ", NAMED_ADDRESSES[name], " into accumulator")
-        
-# ADD - Add the value to the accumulator
-def ADD(value):
-    global ACCUMULATOR, VERBOSE
-    ACCUMULATOR += int(value)
-    # check if accumulator is greater than set size
-    if ACCUMULATOR > BIT_LENGTH:
-        # kill program
-        print("Accumulator Overflow Error")
-        exit(3)
-    if VERBOSE:
-        print("Added value ", value, " to accumulator")
-
-# SUB - Subtract the value from the accumulator
-def SUB(value):
-    global ACCUMULATOR, VERBOSE
-    ACCUMULATOR -= int(value)
-    if VERBOSE:
-        print("Subtract values")
-
-# JMP - Jump to the address specified
-def JMP(address):
-    global LINE_COUNTER, VERBOSE
-    LINE_COUNTER = int(address)
-    if VERBOSE:
-        print("Jump to location")
-
-# JEZ - Jump to the address specified if the accumulator is equal to zero
-def JEZ(address):
-    global ACCUMULATOR, LINE_COUNTER, VERBOSE
-    if ACCUMULATOR == 0:
-        LINE_COUNTER = int(address)
-    if VERBOSE:
-        print("Jump if equal to zero")
-
-# JGZ - Jump to the address specified if the accumulator is greater than zero
-def JGZ(address):
-    global ACCUMULATOR, LINE_COUNTER, VERBOSE
-    if ACCUMULATOR > 0:
-        LINE_COUNTER = int(address)
-    if VERBOSE:
-        print("Jump if greater than zero")
-
-# JLZ - Jump to the address specified if the accumulator is less than zero
-def JLZ(address):
-    global ACCUMULATOR, LINE_COUNTER, VERBOSE
-    if ACCUMULATOR < 0:
-        LINE_COUNTER = int(address)
-    if VERBOSE:
-        print("Jump if less than zero")
-
-# JNZ - Jump to the address specified if the accumulator is not equal to zero
-def JNZ(address):
-    global ACCUMULATOR, LINE_COUNTER, VERBOSE
-    if ACCUMULATOR != 0:
-        LINE_COUNTER = int(address)
-    if VERBOSE:
-        print("Jump if not equal to zero")
-
-# INP - Input a value into the accumulator
-def INP():
-    global ACCUMULATOR, VERBOSE
-    ACCUMULATOR = int(input("U >>> "))
-    if VERBOSE:
-        print("Input value")
-
-
-# OUT - Output the value in the accumulator
-def OUT():
-    global ACCUMULATOR, VERBOSE
-    print(ACCUMULATOR)
-    if VERBOSE:
-        print("Output value")
-
-# SIG - Send a signal of given strength to the given port
-def SIG(port, strength):
-    global PORTS, VERBOSE
-
-    if port in range(0,15):
-        # Check that the strength is valid
-        if strength < 0:
-            strength = 0
-        elif strength > 255:
-            strength = 255
-        PORTS[port] = strength
-    else:
-        print("Invalid port address")
-        exit(1)
-    if VERBOSE:
-        print("Send signal")
-
-# BAD - Bitwise AND the value in the accumulator with the value given
-def BAD(value):
-    global ACCUMULATOR, VERBOSE
-    ACCUMULATOR = ACCUMULATOR & int(value)
-    if VERBOSE:
-        print("Bitwise AND")
-
-# BOR - Bitwise OR the value in the accumulator with the value given
-def BOR(value):
-    global ACCUMULATOR, VERBOSE
-    ACCUMULATOR = ACCUMULATOR | int(value)
-    if VERBOSE:
-        print("Bitwise OR")
-
-# BXR - Bitwise XOR the value in the accumulator with the value given
-def BXR(value):
-    global ACCUMULATOR, VERBOSE
-    ACCUMULATOR = ACCUMULATOR ^ int(value)
-    if VERBOSE:
-        print("Bitwise XOR")
-
-# DLY - Delay by the given number of ticks
-def DLY(ticks):
-    global VERBOSE
-    time.sleep(ticks)
-    if VERBOSE:
-        print("Delay")
 
 # Convert each line into an array
 def tokenise(line):
@@ -259,7 +153,7 @@ def tokenise(line):
 
 # Execute a line
 def execute(line):
-    global ACCUMULATOR, RAM, STACK, LINE_COUNTER
+    global ACCUMULATOR, ram, STACK, LINE_COUNTER
 
     tokens = tokenise(line)
 
@@ -270,61 +164,72 @@ def execute(line):
         print("t", tokens)
         print("p", params)
 
-        
-    if opcode == "HLT":
-        # Code to execute if the opcode is "HLT"
-        HLT()
-    elif opcode == "SAV":
-        # Code to execute if the opcode is "SAV"
-        SAV(params[0],params[1])
-    elif opcode == "LDA":
-        # Code to execute if the opcode is "LDA"
-        LDA(params[0])
-    elif opcode == "ADD":
-        # Code to execute if the opcode is "ADD"
-        ADD(params[0])
-    elif opcode == "SUB":
-        # Code to execute if the opcode is "SUB"
-        SUB(params[0])
-    elif opcode == "JMP":
-        # Code to execute if the opcode is "JMP"
-        JMP(params[0])
-    elif opcode == "JEZ":
-        # Code to execute if the opcode is "JEZ"
-        JEZ(params[0])
-    elif opcode == "JGZ":
-        # Code to execute if the opcode is "JGZ"
-        JGZ(params[0])
-    elif opcode == "JLZ":
-        # Code to execute if the opcode is "JLZ"
-        JLZ(params[0])
-    elif opcode == "JNZ":
-        # Code to execute if the opcode is "JNZ"
-        JNZ(params[0])
-    elif opcode == "INP":
-        # Code to execute if the opcode is "INP"
-        INP()
-    elif opcode == "OUT":
-        # Code to execute if the opcode is "OUT"
-        OUT()
-    elif opcode == "SIG":
-        # Code to execute if the opcode is "SIG"
-        SIG(params[0], params[1])
-    elif opcode == "BAD":
-        # Code to execute if the opcode is "BAD"
-        BAD(params[0])
-    elif opcode == "BOR":
-        # Code to execute if the opcode is "BOR"
-        BOR(params[0])
-    elif opcode == "BXR":
-        # Code to execute if the opcode is "BXR"
-        BXR(params[0])
-    elif opcode == "DLY":
-        # Code to execute if the opcode is "DLY"
-        DLY(params[0])
+    # run opcode according to instruction set
+    if opcode in ROM:
+        ROM[opcode](params)
     else:
-        # Code to execute if the opcode doesn't match any of the given opcodes
-        print("Unknown opcode", opcode)
+        error("Unknown opcode " + opcode)
+
+        
+    # if opcode == "HLT":
+    #     # Code to execute if the opcode is "HLT"
+    #     HLT()
+    # elif opcode == "SAV":
+    #     # Code to execute if the opcode is "SAV"
+    #     SAV(params[0],params[1])
+    # elif opcode == "LDA":
+    #     # Code to execute if the opcode is "LDA"
+    #     LDA(params[0])
+    # elif opcode == "ADD":
+    #     # Code to execute if the opcode is "ADD"
+    #     ADD(params[0])
+    # elif opcode == "SUB":
+    #     # Code to execute if the opcode is "SUB"
+    #     SUB(params[0])
+    # elif opcode == "JMP":
+    #     # Code to execute if the opcode is "JMP"
+    #     JMP(params[0])
+    # elif opcode == "JEZ":
+    #     # Code to execute if the opcode is "JEZ"
+    #     JEZ(params[0])
+    # elif opcode == "JGZ":
+    #     # Code to execute if the opcode is "JGZ"
+    #     JGZ(params[0])
+    # elif opcode == "JLZ":
+    #     # Code to execute if the opcode is "JLZ"
+    #     JLZ(params[0])
+    # elif opcode == "JNZ":
+    #     # Code to execute if the opcode is "JNZ"
+    #     JNZ(params[0])
+    # elif opcode == "INP":
+    #     # Code to execute if the opcode is "INP"
+    #     INP()
+    # elif opcode == "OUT":
+    #     # Code to execute if the opcode is "OUT"
+    #     OUT()
+    # elif opcode == "SIG":
+    #     # Code to execute if the opcode is "SIG"
+    #     SIG(params[0], params[1])
+    # elif opcode == "BAD":
+    #     # Code to execute if the opcode is "BAD"
+    #     BAD(params[0])
+    # elif opcode == "BOR":
+    #     # Code to execute if the opcode is "BOR"
+    #     BOR(params[0])
+    # elif opcode == "BXR":
+    #     # Code to execute if the opcode is "BXR"
+    #     BXR(params[0])
+    # elif opcode == "DLY":
+    #     # Code to execute if the opcode is "DLY"
+    #     DLY(params[0])
+    # else:
+    #     # Code to execute if the opcode doesn't match any of the given opcodes
+    #     print("Unknown opcode", opcode)
+
+
+###############################################################################################################################
+
+# Main program starts here
 
 # Argument handling
 parser = argparse.ArgumentParser(description="")
@@ -339,9 +244,9 @@ parser.add_argument(
     "-f", "--filename", metavar="FILE", type=str, help="The input filename"
 )
 
-# Argument to show the RAM output each iteration
+# Argument to show the ram output each iteration
 parser.add_argument(
-    "-r", "--show_ram", action="store_true", help="Show the values in RAM"
+    "-r", "--show_ram", action="store_true", help="Show the values in ram"
 )
 
 # set args
@@ -355,8 +260,12 @@ if __name__ == "__main__":
     # handle no file
     if args.filename == None:
         # error message in red using colors class
-        
+        error("No file specified")
         exit(1)
+
+    if args.show_ram:
+        showram(ram)
+    
     with open(args.filename) as program_file:
         # Execute each line iteratively
         for line in program_file:
@@ -364,3 +273,5 @@ if __name__ == "__main__":
                 execute(line)
                 if args.verbose:
                     print("\u001b[31mACCUMULATOR:", ACCUMULATOR, "\u001b[0m")
+                if args.show_ram:
+                    showram(ram)

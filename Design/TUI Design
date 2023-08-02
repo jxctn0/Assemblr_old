@@ -1,0 +1,49 @@
+import random, time
+from os import system as cmd
+
+
+
+def clear():
+    cmd('cls' if cmd == 'nt' else 'clear')
+
+# Function to generate a random 4-digit hexadecimal number
+def generate_random_hex():
+    return format(random.randint(0, 0xffff), '04x')
+
+
+# Initialize the RAM with random hexadecimal numbers
+ram = [[generate_random_hex() for _ in range(16)] for _ in range(16)]
+
+# Set the clock speed (in seconds)
+CLOCK_SPEED = 1
+
+
+# print out RAM
+def printRAM():
+    clear()
+    global ram
+
+    print("""
+╔═══╦══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╤══════╗
+║   ║  0   │ 1    │ 2    │  3   │  4   │  5   │  6   │  7   │  8   │  9   │  a   │  b   │  c   │  d   │  e   │  f   ║""")
+
+    for i in range(0, len(ram)):
+
+        print("╟───╫──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────╢")
+        
+        # convert i to a hex string
+        rownum = str(hex(i)[2:].zfill(1))
+
+        print("║ " + rownum, end=" ║")
+
+        for j in range(0, len(ram[i])-1):
+            print(" " + ram[i][j], end=" │")
+        print(" " + ram[i][len(ram[i])-1], end=" ║\n")
+    
+    print("╚═══╩══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╧══════╝\n")
+
+while True:
+
+    ram = [[generate_random_hex() for _ in range(16)] for _ in range(16)]
+    printRAM()
+    time.sleep(CLOCK_SPEED)

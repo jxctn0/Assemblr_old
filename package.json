@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "node-pty": "^1.0.0"
+  }
+}
