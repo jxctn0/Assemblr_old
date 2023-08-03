@@ -1,6 +1,7 @@
 # imports
 import json
 import os
+import time
 # import local modules
 import cli, app
 
@@ -37,7 +38,6 @@ Instruction set JSON schema:
     "function": function
 }
 """
-
 
 class operations:
     def HLT():
@@ -185,5 +185,43 @@ INSTRUCTION_SET = {
         "operands": 1,
         "description": "Input",
         "function": operations.INP
+    }, 
+    "OUT": {
+        "opcode": ["1010", "A", 10],
+        "operands": 0,
+        "description": "Output",
+        "function": operations.OUT
     },
-    
+    "SIG": {
+        "opcode": ["1011", "B", 11],
+        "operands": 3,
+        "description": "Send Signal",
+        "function": operations.SIG
+    },
+    "BAD": {
+        "opcode": ["1100", "C", 12],
+        "operands": 1,
+        "description": "Bitwise AND",
+        "function": operations.BAD
+    },
+    "BOR": {
+        "opcode": ["1101", "D", 13],
+        "operands": 1,
+        "description": "Bitwise OR",
+        "function": operations.BOR
+    },
+    "BXR": {
+        "opcode": ["1110", "E", 14],
+        "operands": 1,
+        "description": "Bitwise XOR",
+        "function": operations.BXR
+    },
+    "DLY": {
+        "opcode": ["1111", "F", 15],
+        "operands": 1,
+        "description": "Delay",
+        "function": operations.DLY
+    }
+}
+
+
