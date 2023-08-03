@@ -127,96 +127,116 @@ class operations:
 # INSTUCTION SET
 INSTRUCTION_SET = {
     "HLT": {
+        # Halts the program completely, exiting with code 0
         "opcode": ["0000", "0", 0],
         "operands": 0,
         "description": "Halt",
         "function": operations.HLT
     },
     "SAV": {
+        # Stores the value in the accumulator into a given memory address
         "opcode": ["0001", "1", 1],
         "operands": 1,
         "description": "Store",
         "function": operations.SAV
     },
     "LDA": {
+        # Loads a value from a specific memory address into the accumulator
         "opcode": ["0010", "2", 2],
         "operands": 1,
         "description": "Load",
         "function": operations.LDA
-    },
+    }, 
     "ADD": {
+        # Adds a given value to the accumulator
         "opcode": ["0011", "3", 3],
         "operands": 1,
         "description": "Add",
         "function": operations.ADD
     },
     "SUB": {
+        # Subtracts a given value from the accumulator
         "opcode": ["0100", "4", 4],
         "operands": 1,
         "description": "Subtract",
         "function": operations.SUB
     },
     "JMP": {
+        # Jumps to a given instruction address
         "opcode": ["0101", "5", 5],
         "operands": 1,
         "description": "Jump always",
         "function": operations.JMP
     },
     "JEZ": {
+        # Jumps to a given instruction address only if the accumulator is 0
         "opcode": ["0110", "6", 6],
         "operands": 1,
         "description": "Jump if Equal to 0",
         "function": operations.JEZ
     },
     "JGZ": {
+        # Jumps to a given instruction address only if the accumulator is greater than 0
         "opcode": ["0111", "7", 7],
         "operands": 1,
         "description": "Jump if Greater than 0",
         "function": operations.JGZ
     },
     "JLZ": {
+        # Jumps to a given instruction address only if the accumulator is less than 0
         "opcode": ["1000", "8", 8],
         "operands": 1,
         "description": "Jump is Less than 0",
         "function": operations.JLZ
     },
     "INP": {
+        # Takes input from the console and stores it in the accumulator
         "opcode": ["1001", "9", 9],
         "operands": 1,
         "description": "Input",
         "function": operations.INP
     }, 
     "OUT": {
+        # Outputs the value in the accumulator to the console
         "opcode": ["1010", "A", 10],
         "operands": 0,
         "description": "Output",
         "function": operations.OUT
     },
     "SIG": {
+        # Sends a signal to a peripheral address
+        # A signal is either a hex value or a 8-bit binary value
+        # A signal strength is a hex value between 0 and 15
+        # A peripheral address is a 4-bit binary value or a hex value between 0 and f
+        # Syntax: SIG <signal> <strength> <addr>
         "opcode": ["1011", "B", 11],
         "operands": 3,
         "description": "Send Signal",
         "function": operations.SIG
     },
     "BAD": {
+        # Performs a bitwise AND on a given operand & the value in the accumulator
         "opcode": ["1100", "C", 12],
         "operands": 1,
         "description": "Bitwise AND",
         "function": operations.BAD
     },
     "BOR": {
+        # Performs a bitwise OR on a given operand & the value in the accumulator
         "opcode": ["1101", "D", 13],
         "operands": 1,
         "description": "Bitwise OR",
         "function": operations.BOR
     },
     "BXR": {
+        # Performs a bitwise XOR on a given operand & the value in the accumulator
         "opcode": ["1110", "E", 14],
         "operands": 1,
         "description": "Bitwise XOR",
         "function": operations.BXR
     },
     "DLY": {
+        # Delays processing by a given value
         "opcode": ["1111", "F", 15],
         "operands": 1,
         "description": "Delay",

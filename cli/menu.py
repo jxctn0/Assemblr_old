@@ -37,12 +37,12 @@ def getROMFiles():
 
 # Show menu with Assemblr logo, and options to load a ROM file or exit
 
-def showMainMenu():
+def main():
     # Clear screen
     cli.clear()
 
     # Print Assemblr logo
-    cli.printLogo()
+    cli.print_sprite()
 
     # Print menu options in a curses window
     menu = curses.newwin(10, 40, 10, 10)
@@ -60,3 +60,4 @@ test config.json:
 
 
 """
+

@@ -4,7 +4,7 @@
 import random, time, os, sys, json, re, argparse
 
 # Custom modules
-import startup, cli.system as system, cli, menu
+import startup, cli, menu
 
 def startup():
     # Import config
