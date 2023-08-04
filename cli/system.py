@@ -245,3 +245,4 @@ INSTRUCTION_SET = {
 }
 
 
+# system.operands[function]["function"](number)

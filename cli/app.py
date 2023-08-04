@@ -28,8 +28,6 @@ def startup():
     # Initialise RAM
     ram = startup.initialiseRAM(system.RAM_SIZE)
 
-    # Initialise ROM
-    ROM = menu.ROM
 ##################################################################################################
 
 # parse arguments
