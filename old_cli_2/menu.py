@@ -56,7 +56,11 @@ def confirm(extraText = ""):
     # Get keypress
     key = confirm_menu.getch()
     # Check keypress
-    if key == ord("1") or key
+    if key == ord("1"):
+        # Clear screen
+        cli.clear()
+        # Exit menu
+        return True
 
 # Show menu with Assemblr logo, and options to load a ROM file or exit
 
@@ -172,6 +176,45 @@ def main():
         elif key == ord("2"):
             # check if sure
             # add ncurses window for confirm message
+            confirm_menu = curses.newwin(10, 40, 10, 10)
+            # 1: border
+            confirm_menu.border(1)
+            # Print confirm message
+            confirm_menu.addstr(1, 1, cli.format.bg.yellow +"Are you sure?" + cli.format.reset)
+            # Option to confirm
+            confirm_menu.addstr(2, 1, cli.format.fg.yellow +"Yes" + cli.format.reset)
+            # Option to cancel
+            confirm_menu.addstr(3, 1, cli.format.fg.yellow +"No" + cli.format.reset)
+            # Refresh menu
+            confirm_menu.refresh()
+            # Get keypress
+            key = confirm_menu.getch()
+            # Check keypress
+            if key == ord("1"):
+                # Clear screen
+                cli.clear()
+                # exit
+                exit(0)
+            elif key == ord("2"):
+                # Cancel
+                # Clear screen
+                cli.clear()
+                # Show menu
+                main()
+            else:
+                # Invalid option
+                # Clear screen
+                cli.clear()
+                # Print Assemblr logo
+                cli.print_sprite("assemblr")
+                # Print error message
+                cli.notify.error("Invalid option", 1)
+                # Refresh menu
+                error_menu.refresh()
+                # Wait for keypress
+                key = error_menu.getch()
+                # Clear screen
+                cli.clear()
 
 
 

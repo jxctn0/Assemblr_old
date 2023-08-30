@@ -1,11 +1,13 @@
-# Classes and functions for printing to terminal.
-# Contains:
-#   - format class
-#   - notify class
+# All functions for the CLI
 
-# Formatting class
-class format:
-    class fg:
+# Import modules
+
+# Import custom modules
+
+# Set Formatting class
+
+class fmt:
+    class fg: # Foreground Colours
         black = "\033[30m"
         red = "\033[31m"
         green = "\033[32m"
@@ -14,8 +16,25 @@ class format:
         magenta = "\033[35m"
         cyan = "\033[36m"
         white = "\033[37m"
-    
-    class bg:
+        class br: # Bright
+            black = "\033[30;1m"
+            red = "\033[31;1m"
+            green = "\033[32;1m"
+            yellow = "\033[33;1m"
+            blue = "\033[34;1m"
+            magenta = "\033[35;1m"
+            cyan = "\033[36;1m"
+            white = "\033[37;1m"
+        class dim: # Dim
+            black = "\033[30;2m"
+            red = "\033[31;2m"
+            green = "\033[32;2m"
+            yellow = "\033[33;2m"
+            blue = "\033[34;2m"
+            magenta = "\033[35;2m"
+            cyan = "\033[36;2m"
+            white = "\033[37;2m"
+    class bg: # Background Colours
         black = "\033[40m"
         red = "\033[41m"
         green = "\033[42m"
@@ -24,8 +43,26 @@ class format:
         magenta = "\033[45m"
         cyan = "\033[46m"
         white = "\033[47m"
-    
-    class style:
+        class br: # Bright
+            black = "\033[40;1m"
+            red = "\033[41;1m"
+            green = "\033[42;1m"
+            yellow = "\033[43;1m"
+            blue = "\033[44;1m"
+            magenta = "\033[45;1m"
+            cyan = "\033[46;1m"
+            white = "\033[47;1m"
+        class dim: # Dim
+            black = "\033[40;2m"
+            red = "\033[41;2m"
+            green = "\033[42;2m"
+            yellow = "\033[43;2m"
+            blue = "\033[44;2m"
+            magenta = "\033[45;2m"
+            cyan = "\033[46;2m"
+            white = "\033[47;2m"
+    class style: # Styles
+        reset = "\033[0m"
         bold = "\033[1m"
         dim = "\033[2m"
         italic = "\033[3m"
@@ -33,16 +70,19 @@ class format:
         blink = "\033[5m"
         reverse = "\033[7m"
         hidden = "\033[8m"
-
-    class presets:
+        strike = "\033[9m"
+    class notify: # specific notify styles
         info = "\033[1m\033[34m" # bold blue
         fatalError = "\033[1m\033[31m" # bold red
         warning = "\033[1m\033[33m" # bold yellow
         success = "\033[1m\033[32m" # bold green
+        debug = "\033[30m\033[43m" # black on yellow
 
 
-    reset = "\033[0m"
 
+# Set error codes dictionary
+# Format: <code>: <message>
+# 
 
 # Error Codes
 ERROR_CODES = {
@@ -72,59 +112,64 @@ ERROR_CODES = {
     52: "File already exists",
     53: "File is not a ROM file",
     54: "Unknown File Error"
-    }
+}        
 
+# Set notify class
 class notify:
-    def error(code, location="", text=""):
-        # Print basic error message
-        print(f"{format.fg.red}ERROR: {ERROR_CODES[code]} ({code}), {format.reset}")
-        # Print location of error
-        if location != "":
-            print(f"{format.fg.red}Location: {location, format.reset}")
-        # Print error text
-        if text != "":
-            print(f"{format.fg.red}Text: {text, format.reset}")
-        exit(code)
+    # All notify functions follow the same format:
+    # <colour> + <bold> + "[<type>] " + <italic> + "[<code>] " + <reset> + <colour> + <message> + <reset>
+    
+    # Error text
+    def error(code, text="", fatal=False):
+        if text == "":
+            text = ERROR_CODES[code] # Set text to error message if no specific text is given
+            # testing
+            print("text = " + text)
 
-    def warning(code, location="", text=""):
-        # Print basic error message
-        print(f"{format.fg.yellow}WARNING: {ERROR_CODES[code]}, {format.reset}")
-        # Print location of error
-        if location != "":
-            print(f"{format.fg.yellow}Location: {location, format.reset}")
-        # Print error text
-        if text != "":
-            print(f"{format.fg.yellow}Text: {text, format.reset}")
+        print(f" {fmt.fg.red}{fmt.style.bold}[ERROR] {fmt.style.italic}[{code}] {fmt.style.reset}{fmt.fg.red}{text}{fmt.style.reset} ")
 
+        if fatal:
+            exit(code)
+
+    # Warning text
+    def warning(text):
+        print(f" {fmt.fg.yellow}{fmt.style.bold}[WARNING] {fmt.style.reset}{fmt.fg.yellow}{text}{fmt.style.reset} ")
+
+    # Info text
     def info(text):
-        print(f"{format.fg.blue}INFO: {text}{format.reset}")
+        print(f" {fmt.fg.blue}{fmt.style.bold}[INFO] {fmt.style.reset}{fmt.fg.blue}{text}{fmt.style.reset} ")
 
+    # Debug text
+    def debug(text, type=""):
+        if type != "":
+            type = f" [{type}] " # Add brackets around type if type is given
+        # print in black and yellow
+        print(f" {fmt.fg.black + fmt.bg.yellow}{fmt.style.bold}[DEBUG] {fmt.style.italic}{type}{fmt.style.reset}{fmt.fg.black + fmt.bg.yellow}{text}{fmt.style.reset} ")
 
-        
-class sprites:
-    class text:
-        assemblr_title_logo = """
+    # Success text
+    def success(text):
+        print(f" {fmt.fg.green}{fmt.style.bold}[SUCCESS] {fmt.style.reset}{fmt.fg.green}{text}{fmt.style.reset} ")
 
- █████╗  ██████╗ ██████╗███████╗███╗   ███╗██████╗ ██╗      
-██╔══██╗██╔════╝██╔════╝██╔════╝████╗ ████║██╔══██╗██║     ██╗████╗
-███████║╚█████╗ ╚█████╗ █████╗  ██╔████╔██║██████╦╝██║     ███╔═══╝
-██╔══██║ ╚═══██╗ ╚═══██╗██╔══╝  ██║╚██╔╝██║██╔══██╗██║     ██╔╝
-██║  ██║██████╔╝██████╔╝███████╗██║ ╚═╝ ██║██████╦╝███████╗██║ 
-╚═╝  ╚═╝╚═════╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝╚═════╝ ╚══════╝╚═╝  
-""",
-        assemblr_logo_small = """ ___  __  __  _______  _______ __   ____ 
-// \\(( \(( \||   ||\\//|||| ))||   || \\
-||=|| \\  \\ ||== || \/ ||||=) ||   ||_//
-|| ||\_))\_))||___||    ||||_))||__||| \\"""
-        cpu = """
- ||||||||
--████████-
--████████-
--████████-
--████████-
- ||||||||"""
+################################
+#                              #
+#    TEMPORARY TESTING CODE    #
+#                              #
+################################
 
+# Test notify functions
+notify.error(0) # No error
+notify.error(1) # Unknown error
+notify.error(11) # Unknown instruction
+notify.error(12) # Syntax error
+notify.error(21) # Address not found
+notify.error(22) # Address already in use
 
+notify.warning("This is a warning")
+notify.info("This is info")
+notify.debug("This is debug")
+notify.success("This is success")
 
-def print_sprite(sprite):
-    print(sprite, end="")
+# Test formatting
+print(f"{fmt.fg.red}This is red text{fmt.style.reset}")
+print(f"{fmt.fg.red}{fmt.style.bold}This is bold red text{fmt.style.reset}")
+print(f"{fmt.fg.red}{fmt.style.italic + fmt.style.bold}This is bold italic red text{fmt.style.reset}")
