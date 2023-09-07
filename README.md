@@ -1,14 +1,4 @@
-```
-
- █████╗  ██████╗ ██████╗███████╗███╗   ███╗██████╗ ██╗     ██████╗ 
-██╔══██╗██╔════╝██╔════╝██╔════╝████╗ ████║██╔══██╗██║     ██╔══██╗
-███████║╚█████╗ ╚█████╗ █████╗  ██╔████╔██║██████╦╝██║     ██████╔╝
-██╔══██║ ╚═══██╗ ╚═══██╗██╔══╝  ██║╚██╔╝██║██╔══██╗██║     ██╔══██╗
-██║  ██║██████╔╝██████╔╝███████╗██║ ╚═╝ ██║██████╦╝███████╗██║  ██║
-╚═╝  ╚═╝╚═════╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝
-                                 Assembly Language Learning Program
-
-```
+<img src="src\assests\Assemblr Logo.png" alt="Assemblr Logo"/>
 
 _The Assemblr Emulator is a game designed to teach people the fundamentals of Assembly Language programming. It provides a platform for users to learn and practice Assembly Language concepts through a series of set puzzles and projects._
 
