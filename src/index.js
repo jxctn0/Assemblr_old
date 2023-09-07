@@ -15,8 +15,8 @@ const createWindow = () => { // Create Window
         } // Load preload.js
     })
 
-
-    win.loadFile('index.html') // Load index.html
+    // Load views/menu.html on startup
+    win.loadFile('views/menu.html')
 }
 
 app.whenReady().then(() => { // When app is ready create window

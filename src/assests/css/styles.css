@@ -1,0 +1,20 @@
+:root {
+    /* 
+    Set Main Colors
+    */
+    --background-colour: #000000;
+    --lower-text-colour: #ffffff;
+    --upper-text-colour: #00ff55;
+
+}
+
+* {
+    /* positioning */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* font: monospace */
+    font-family: 'Consolas', 'Courier New', monospace;
+    /* font-size: 1rem (=16px) */
+    font-size: 1rem;
+}
