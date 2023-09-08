@@ -16,47 +16,9 @@
         - About
         - Quit
     -->
-    <script src="../assets/scripts/menu.js">
-        // create menu using Javascript + template
-
-        // import "findSave" function from main.js
-        import { findSave } from "../assets/scripts/main.js";
-
-        /*
+    <!-- scripts/menu.js" -->
+    <script>
         
-        */
-
-        function create_menu() {
-            // create menu
-            var menu_root = document.getElementById("menu-root");
-            var menu_item = document.createElement("div");
-            menu_item.classList.add("menu-item");
-            // check if there is a save file with content
-            // if there is, add a menu item to "Continue"
-            // if there isn't, show "Start New" instead.
-            if (findSave()[0]) {
-                menu_item.innerHTML = "Continue";
-                menu_item.id = "menu-item-continue";
-                // add event listener to menu item
-                menu_item.addEventListener("click", function() {
-                    // load last save in game.html
-                    // redirect to game.html
-
-                    event.preventDefault(); // prevent default action 
-                    window.location.href = "../views/game.html?sf="; // redirect to game.html
-                });
-            } else {
-                menu_item.innerHTML = "Start New";
-                menu_item.id = "menu-item-start-new";
-            }
-
-            
-        }
-
-        // wait for DOM to load
-        document.addEventListener("DOMContentLoaded", function(event) { 
-            // run menu script
-        });
     </script>
 
     <div class="menu-root" id="menu-root">
