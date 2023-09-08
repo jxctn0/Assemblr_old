@@ -1,6 +1,6 @@
-// First Hello World Electron App
+// Start Creating the Assemblr App
 
-const { app, BrowserWindow } = require('electron') // Electron 
+const { app, BrowserWindow } = require('electron') // Need Electron 
 
 // include the Node.js 'path' module at the top of your file
 const path = require('node:path')

@@ -1,4 +1,0 @@
-//
-Core
-emulator
-logic
