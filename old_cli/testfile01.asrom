@@ -1,4 +1,0 @@
-ADD 10 ; comment
-ADD 14 ; another comment
-OUT ; comment
-HLT
