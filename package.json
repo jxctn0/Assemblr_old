@@ -1,0 +1,19 @@
+{
+  "name": "assemblr",
+  "version": "0.0.1",
+  "description": "An assembly emulator tool to learn low level programming constructs",
+  "main": "scripts/main.js",
+  "scripts": {
+    "start": "node .",
+    "preinstall": "npm install --save-dev electron"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.1",
+    "react": "^0.14.10"
+  },
+  "devDependencies": {
+    "chalk": "^2.4.2",
+    "electron": "^26.2.1"
+  }}
