@@ -94,3 +94,4 @@ Based off of the Little Man Computer IS, but has a few extra commands to interfa
 | 2 | `INVALID_ADDRESS` | Invalid address |
 | 3 | `INVALID_VALUE` | Invalid value |
 | 4 | `INVALID_PORT` | Invalid port ID |
+

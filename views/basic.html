@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Register View</title>
+        <script>
+            // Wrap your code in a DOMContentLoaded event listener
+            document.addEventListener("DOMContentLoaded", function () {
+                // Function to convert a decimal number to hexadecimal
+                function decimalToHex(decimal) {
+                    return decimal.toString(16).toUpperCase();
+                }
+
+                // Function to generate the header row with column names
+                function generateHeaderRow(cols) {
+                    const headerRow = document.querySelector("thead tr");
+                    for (let x = 0; x < cols; x++) {
+                        const colName = decimalToHex(x); // Get hex value for column
+                        const th = document.createElement("th");
+                        th.textContent = colName;
+                        th.setAttribute("colspan", "2");
+                        headerRow.appendChild(th);
+                    }
+                }
+                // Generate the header row with column names
+
+                // Function to generate the table
+                function generateTable(rows, cols) {
+                    const table = document.querySelector("table tbody");
+                    generateHeaderRow(cols / 2);
+                    for (let y = 0; y < rows; y++) {
+                        const row = document.createElement("tr");
+                        for (let x = 0; x < cols; x++) {
+                            const cell = document.createElement("td");
+                            if (x % 2 === 0) {
+                                cell.textContent = decimalToHex(y); // Display hex row number
+                            } else {
+                                const input = document.createElement("input");
+                                input.setAttribute(
+                                    "id",
+                                    `address_${decimalToHex(
+                                        x / 2
+                                    )}-${decimalToHex(y)}`
+                                );
+                                input.setAttribute(
+                                    "placeholder",
+
+                                    `${decimalToHex(
+                                        (x - 1) / 2
+                                    )}:${decimalToHex(y)}`
+                                );
+                                input.setAttribute("disabled", "disabled");
+                                cell.appendChild(input);
+                            }
+                            row.appendChild(cell);
+                        }
+                        table.appendChild(row);
+                    }
+                }
+
+                // Generate a 32x32 table
+                generateTable(16, 32);
+            });
+        </script>
+        <style>
+            * {
+                box-sizing: border-box;
+                font-family: "Courier New", Courier, monospace;
+            }
+            table {
+                border-collapse: collapse;
+            }
+            td,
+            th {
+                border: 1px solid black;
+                padding: 0.25rem;
+            }
+            input {
+                width: 2.5rem;
+            }
+
+            /* Assemblr Logo */
+            .gb {
+                color: #00ff0f;
+                background-color: #000000;
+            }
+            .bg {
+                color: #000000;
+                background-color: #00ff0f;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>
+            <span class="gb">&nbsp; Assembl</span><span class="bg">r</span
+            ><span class="gb"> &nbsp;</span>
+        </h1>
+
+        <div id="CPU">
+            <style>
+                .divTable {
+                    display: table;
+                    width: 35rem;
+                }
+                .row {
+                    display: table-row;
+                }
+                .cell {
+                    display: table-cell;
+                    width: 75%;
+                    border: 1px solid black;
+                    padding: 0.25rem;
+                }
+            </style>
+            <div class="divTable">
+                <div class="row">
+                    <div class="cell">Accumulator</div>
+                    <div class="cell">
+                        <input
+                            type="text"
+                            id="accumulator"
+                            disabled
+                            value="0000"
+                        />
+                    </div>
+                    <div class="cell">Instruction Counter</div>
+                    <div class="cell">
+                        <input
+                            type="text"
+                            id="instructionCounter"
+                            disabled
+                            value="0000"
+                        />
+                    </div>
+                    <div class="cell">Program Counter</div>
+                    <div class="cell">
+                        <input
+                            type="text"
+                            id="programCounter"
+                            disabled
+                            value="0000"
+                        />
+                    </div>
+                    <div class="cell">Address Register</div>
+                    <div class="cell">
+                        <input
+                            type="text"
+                            id="addressRegister"
+                            disabled
+                            value="0000"
+                        />
+                    </div>
+                    <div class="cell">Clock</div>
+                    <div class="cell">
+                        <svg
+                            width="3rem"
+                            height="3rem"
+                            viewBox="0 0 100 100"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <circle
+                                id="clock"
+                                cx="50%"
+                                cy="50%"
+                                r="25%"
+                                stroke="red"
+                                stroke-width="1"
+                                fill="red"
+                            />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            .container {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            .child {
+                width: 210%;
+            }
+        </style>
+        <div class="container divTable">
+            <div id="RAM" class="child">
+                <table border="1">
+                    <thead>
+                        <tr></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="Code" class="child row">
+                <textarea
+                    id="code"
+                    rows="16"
+                    cols="40"
+                    placeholder="Enter your code here"
+                ></textarea>
+                <button id="runButton" class="row" onclick="runCode()">
+                    Run
+                </button>
+            </div>
+        </div>
+        <script>
+            /*
+             * This script will eventually be in the assets/js/machine.js file
+             */
+
+            // Runs the code in the textarea
+            // Function to convert a decimal number to hexadecimal
+            function decimalToHex(decimal) {
+                return decimal.toString(16).toUpperCase();
+            }
+
+            // Function to convert a hexadecimal number to decimal
+            function hexToDecimal(hex) {
+                return parseInt(hex, 16);
+            }
+
+            // Function to convert a decimal number to binary
+            function decimalToBinary(decimal) {
+                return decimal.toString(2).padStart(4, "0");
+            }
+            // Function to convert a binary number to decimal
+            function binaryToDecimal(binary) {
+                return parseInt(binary, 2);
+            }
+
+            // List of peripherals and their corresponding binary values
+
+            let peripherals = {
+                output: {
+                    // Screen Addresses
+                    /*
+                    Pick a cell (0000 - 1111/0 - 15)
+                    pick an x coordinate
+                    pick a y coordinate
+                    pick an rgba value (4 different writes)
+
+                    */
+                    screen_refresh: 0, // 0000
+                    screen_cell: 1, // 0001 -- 0000 would refer to the first cell in the screen; 
+                    screen_x:2, // 0010
+                    screen_y: 3, // 0011
+                    screen_r: 4, // 0100
+                    screen_g: 5, // 0101
+                    screen_b: 6, // 0110
+                    screen_a: 7, // 0111
+
+                    screen
+
+
+
+                },
+                input:{
+                
+
+                }
+            };
+
+            let vars = {};
+
+            // vars is an object that contains all the variables in the program:
+            // vars = {
+            //     "variableName": {
+            //         "address": "0000",
+            //         "value": "0000",
+            //     }
+
+            // List of opcodes and their corresponding binary values and functions
+            var opcodes = {
+                HLT: {
+                    binary: "0000",
+                    function: function () {
+                        // Stop the program
+                        clearInterval(interval);
+                    },
+                },
+                STA: {
+                    binary: "0001",
+                    function: function (address) {
+                        // Store the value in the accumulator to the address
+                        ram[address] = accumulator;
+                    },
+                },
+                LDA: {
+                    binary: "0010",
+                    function: function (address) {
+                        // Load the value at the address into the accumulator
+                        accumulator = ram[address];
+                    },
+                },
+                ADD: {
+                    binary: "0011",
+                    function: function (address) {
+                        // Add the value at the address to the accumulator
+                        accumulator += ram[address];
+                    },
+                },
+                SUB: {
+                    binary: "0100",
+                    function: function (address) {
+                        // Subtract the value at the address from the accumulator
+                        accumulator -= ram[address];
+                    },
+                },
+                JMP: {
+                    binary: "0101",
+                    function: function (address) {
+                        // Jump to the address always
+                        programCounter = address;
+                    },
+                },
+                JGZ: {
+                    binary: "0110",
+                    function: function (address) {
+                        // Jump to the address if the accumulator is greater than zero
+                        if (accumulator > 0) {
+                            programCounter = address;
+                        }
+                    },
+                },
+                JLZ: {
+                    binary: "0111",
+                    function: function (address) {
+                        // Jump to the address if the accumulator is less than zero
+                        if (accumulator < 0) {
+                            programCounter = address;
+                        }
+                    },
+                },
+                JEZ: {
+                    binary: "1000",
+                    function: function (address) {
+                        // Jump to the address if the accumulator is equal to zero
+                        if (accumulator == 0) {
+                            programCounter = address;
+                        }
+                    },
+                },
+                JNZ: {
+                    binary: "1001",
+                    function: function (address) {
+                        // Jump to the address if the accumulator is not equal to zero
+                        if (accumulator != 0) {
+                            programCounter = address;
+                        }
+                    },
+                },
+                JRO: {
+                    binary: "1010",
+                    function: function (address) {
+                        // Jump to the address relative to the current address
+                        programCounter += address;
+                    },
+                },
+                INP: {
+                    binary: "1011",
+                    function: function (address) {
+                        // Get input from the user and store it in the accumulator
+                        accumulator = prompt("Enter a value"); //!TODO CHANGE ME!!!
+                    },
+                },
+                OUT: {
+                    binary: "1100",
+                    function: function (address) {
+                        // Output the value in the accumulator to the user
+                        alert(accumulator); //!TODO CHANGE ME!!!
+                    },
+                },
+                PRD: {
+                    binary: "1101",
+                    function: function (address) {
+                        address = hexToDecimal(address);
+                        // read value on peripheral input and store it in the accumulator
+                        if (address < 0 || address > 15) {
+                            alert("Invalid peripheral address");
+                        } else {
+                            accumulator = document.getElementById(
+                                `peripheral_${address}`
+                            ).value;
+                        }
+                        document.getElementById(`peripheral_${address}`).value =
+                            accumulator;
+                    },
+                },
+                PWR: {
+                    binary: "1110",
+                    function: function (address) {
+                        address = hexToDecimal(address);
+                        // Output the value in the accumulator to the peripheral output
+                        if (address < 0 || address > 15) {
+                            alert("Invalid peripheral address");
+                        } else {
+                            document.getElementById(
+                                `peripheral_${address}`
+                            ).value = accumulator;
+                        }
+                    },
+                },
+                NOP: {
+                    binary: "1111",
+                    function: function (address) {
+                        // Do nothing
+                    },
+                },
+            };
+        </script>
+    </body>
+</html>

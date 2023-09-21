@@ -16,7 +16,7 @@ const createWindow = () => { // Create Window
     })
 
     // Load views/menu.html on startup
-    win.loadFile('views/menu.html')
+    win.loadFile('./views/basic.html')
 }
 
 app.whenReady().then(() => { // When app is ready create window
