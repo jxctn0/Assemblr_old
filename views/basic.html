@@ -113,42 +113,47 @@
             </style>
             <div class="divTable">
                 <div class="row">
-                    <div class="cell">Accumulator</div>
+                    <div class="cell">
+                        <label for="accumulator">Accumulator</label>
+                    </div>
                     <div class="cell">
                         <input
+                            name="accumulator"
                             type="text"
                             id="accumulator"
                             disabled
                             value="0000"
                         />
                     </div>
-                    <div class="cell">Instruction Counter</div>
+                    <div class="cell"><label for="instructionCounter">Instruction Counter</label></div>
                     <div class="cell">
                         <input
+                            name="instructionCounter"
                             type="text"
                             id="instructionCounter"
                             disabled
                             value="0000"
                         />
                     </div>
-                    <div class="cell">Program Counter</div>
+                    <div class="cell"><label for="instructionRegister">Instruction Register</label></div>
                     <div class="cell">
                         <input
+                            name="instructionRegister"
+                            type="text"
+                            id="instructionRegister"
+                            disabled
+                            value="0000"
+                        />
+                    </div>
+                    <div class="cell"><label for="programCounter">Program Counter</label></div>
+                    <div class="cell">
+                        <input
+                            name="programCounter"
                             type="text"
                             id="programCounter"
                             disabled
                             value="0000"
                         />
-                    </div>
-                    <div class="cell">Address Register</div>
-                    <div class="cell">
-                        <input
-                            type="text"
-                            id="addressRegister"
-                            disabled
-                            value="0000"
-                        />
-                    </div>
                     <div class="cell">Clock</div>
                     <div class="cell">
                         <svg
@@ -240,23 +245,17 @@
 
                     */
                     screen_refresh: 0, // 0000
-                    screen_cell: 1, // 0001 -- 0000 would refer to the first cell in the screen; 
-                    screen_x:2, // 0010
+                    screen_cell: 1, // 0001 -- 0000 would refer to the first cell in the screen;
+                    screen_x: 2, // 0010
                     screen_y: 3, // 0011
                     screen_r: 4, // 0100
                     screen_g: 5, // 0101
                     screen_b: 6, // 0110
                     screen_a: 7, // 0111
 
-                    screen
-
-
-
+                    screen,
                 },
-                input:{
-                
-
-                }
+                input: {},
             };
 
             let vars = {};
