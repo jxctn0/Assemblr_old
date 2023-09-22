@@ -1,4 +1,4 @@
-<img src="assets\Assemblr Logo.png" alt="Assemblr Logo"/>
+<img src="./assets/img/Assemblr Logo.png" alt="Assemblr Logo"/>
 
 _The Assemblr Emulator is a game designed to teach people the fundamentals of Assembly Language programming. It provides a platform for users to learn and practice Assembly Language concepts through a series of set puzzles and projects._
 
@@ -30,68 +30,66 @@ The IDE (Integrated Development Environment) provides a user-friendly interface 
 
 The emulator's display simulates a 512 x 64 bit screen, which can be manipulated using the SIG command. Users can interact with the display by writing Assembly code that controls the pixels and colors on the screen. This provides a visual representation of their programs and allows for experimentation and creativity.
 
-![Emulation Display](https://raw.githubusercontent.com/joshua-cotugno/Assemblr/main/README-resources/display.svg)
-
 ## What Makes It Complex?
 
 The Assemblr Emulator project involves several challenging aspects, including:
 
-- Creation of IDE (Assemblr Compile): #
+-   Creation of IDE (Assemblr Compile): #
 
-  - Develop a complete IDE that supports Assembly Language syntax highlighting
-- Creation of an emulator to translate Assemblr Language to display:
+    -   Develop a complete IDE that supports Assembly Language syntax highlighting
 
-  - Build an efficient and accurate emulator that can interpret Assembly Language instructions and render the corresponding output on the 512 x 64 bit display.
-- Design progressive puzzles to be written in the language
+-   Creation of an emulator to translate Assemblr Language to display:
 
-`<br><br>``<br><br>`
+    -   Build an efficient and accurate emulator that can interpret Assembly Language instructions.
+    -   Create the emulator modularly so that it can be easily extended to support new features, i.e. supporting an actual hardware device like the [Raspberry Pi](https://raspberrypi.org) or [Arduino](https://arduino.cc).
 
----
+-   Design progressive puzzles to be written in the language
 
----
+    -   Create a series of puzzles that teach users how to write Assembly Language code in a fun and engaging way.
+    -   Develop a system for tracking user progress and providing feedback on their performance.
+    -   Design a system for users to create their own puzzles
 
-## Parts of the "Emulator"
+## How Does It Work?
 
-### RAM
+### Fetch-Decode-Execute Cycle
 
-*_Random Access Memory_*
+### Assemblr Language
 
-- Contains the currently running program, and the data for that program. Will ont save between runtimes
+<p style="display: none">
+- based on OCR instruction set, but can use others through the use of a configuration file
+- uses a 16 bit word size
+- uses 16 bit addresses
+- uses 16 bit values
+</p>
 
-### CPU
+#### Instruction Set
 
-*_Central Processing Unit_*
+| Opcode | Hex    | Dec | Name  | Mnemonic               | Syntax                       | Description                                                                         |
+| ------ | ------ | --- | ----- | ---------------------- | ---------------------------- | ----------------------------------------------------------------------------------- |
+| 0      | `0000` | 0   | `HLT` | Halt                   | `HLT`                        | Stops the execution of the program                                                  |
+| 1      | `0001` | 1   | `STA` | Store                  | `STA <location>`             | Stores the value in the accumulator into memory                                     |
+| 2      | `0010` | 2   | `LDA` | Load                   | `LDA <location>`             | Loads a value from memory into the accumulator                                      |
+| 3      | `0011` | 3   | `ADD` | Add                    | `ADD <location>`             | Adds a value from memory to the accumulator                                         |
+| 4      | `0100` | 4   | `SUB` | Subtract               | `SUB <location>`             | Subtracts a value from memory from the accumulator                                  |
+| 5      | `0101` | 5   | `JMP` | Jump                   | `JMP <location>`             | Jumps to the specified memory location                                              |
+| 6      | `0110` | 6   | `JGZ` | Jump if greater than 0 | `JGZ <location>`             | Jumps to the specified memory location if the accumulator is greater than 0         |
+| 7      | `0111` | 7   | `JLZ` | Jump if less than 0    | `JLZ <location>`             | Jumps to the specified memory location if the accumulator is less than 0            |
+| 8      | `1000` | 8   | `JEZ` | Jump if equal to 0     | `JEZ <location>`             | Jumps to the specified memory location if the accumulator is equal to 0             |
+| 9      | `1001` | 9   | `JMR` | Jump relative          | `JMR <offset>`               | Jumps to the specified memory location relative to the current instruction location |
+| 10     | `1010` | 10  | `OUT` | Output                 | `OUT <location>`             | Outputs the value in the accumulator to the specified port                          |
+| 11     | `1011` | 11  | `INP` | Input                  | `INP <location>`             | Inputs a value from the specified port into the accumulator                         |
+| 12     | `1100` | 12  | `PWR` | Port Write             | `PWR <port address> <value>` | Writes the specified value to the specified port                                    |
+| 13     | `1101` | 13  | `PRD` | Port Read              | `PRD <port address>`         | Reads the value from the specified port into the accumulator                        |
 
-## Instruction Set
+## Registers
 
-Based off of the Little Man Computer IS, but has a few extra commands to interface with "Peripherals"
-| Opcode | Hex    | Dec | Name  | Mnemonic                   | Syntax                                                   | Description                                                 |
-| ------ | ------ | --- | ----- | -------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
-| 0      | `0000` |  0  | `HLT` | Halt                       | `HLT`                                                    | Stops the execution of the program                          |
-| 1      | `0001` |  1  | `STA` | Store                      | `STA <location>`                                         | Stores the value in the accumulator into memory             |
-| 2      | `0010` |  2  | `LDA` | Load                       | `LDA <location>`                                         | Loads a value from memory into the accumulator              |
-| 3      | `0011` |  3  | `SEG` | Set Group                  | `SEG <group name>` `<location start> <location end>`     | Sets a group of memory locations                            |
-| 4      | `0100` |  4  | `APG` | Append to Group            | `APG <group name>` `<int>`                               | Appends a value to a group of memory locations              |
-| 5      | `0101` |  5  | `RMG` | Remove from Group          | `RMG <group name>` `<int>`                               | Removes a value from a group of memory locations            |
-| 6      | `0110` |  6  | `SGR` | Shift Group Right          | `SHG <group name>`                                       | Shifts a group of memory locations to the right             |
-| 7      | `0111` |  7  | `SGL` | Shift Group Left           | `SGL <group name>`                                       | Shifts a group of memory locations to the left              |
-| 8      | `1000` |  8  | `DLG` | Delete Group               | `DLG <group name>`                                       | Deletes a group of memory locations                         |
-| 9      | `1001` |  9  | `ADD` | Add                        | `ADD <int>`                                              | Adds the value in the accumulator to another value          |
-| 10     | `1010` |  A  | `SUB` | Subtract                   | `SUB <int>`                                              | Subtracts a value from the accumulator                      |
-| 11     | `1011` |  B  | `JMP` | Jump always                | `JMP <addr>`                                             | Jumps unconditionally to a specified memory address         |
-| 12     | `1100` |  C  | `JEZ` | Jump if Equal to `0`       | `JEZ <addr>`                                             | Jumps to a specified memory address if accumulator is = `0` |
-| 13     | `1101` |  D  | `JGZ` | Jump if Greater than `0`   | `JGZ <addr>`                                             | Jumps to a specified memory address if accumulator > `0`    |
-| 14     | `1110` |  E  | `JLZ` | Jump is Less than `0`      | `JLZ <addr>`                                             | Jumps to a specified memory address if accumulator < `0`    |
-| 15     | `1111` |  F  | `SIG` | Send Signal                | `SIG <signal> <x> <y>` `<port>`                          | Sends a signal to a port                                    |
-
-## Program Error Codes
-*_Error Codes _*
-
-| Code | Name | Description |
-| ---- | ---- | ----------- |
-| 0 | `NO_ERROR` | No error |
-| 1 | `INVALID_OPCODE` | Invalid opcode |
-| 2 | `INVALID_ADDRESS` | Invalid address |
-| 3 | `INVALID_VALUE` | Invalid value |
-| 4 | `INVALID_PORT` | Invalid port ID |
+| Name                 | Address | Reference   | Read | Write | Description                                               |
+| -------------------- | ------- | ----------- | :--: | :---: | --------------------------------------------------------- |
+| Accumulator          | 0       | `$ACC`      |  ✔  |  ✔    | Stores the result of arithmetic operations                |
+| Null Register        | 1       | `$NUL`      |  ✔  |  ❌   | Stores the value 0                                        |
+| Instruction Pointer  | 2       | `$IP`       |  ✔  |  ✔    | Stores the address of the next instruction to be executed |
+| Instruction Register | 3       | `$IR`       |  ✔  |  ❌   | Stores the current instruction being executed             |
+| Stack Pointer        | 4       | `$SP`       |  ✔  |  ✔    | Stores the address of the top of the stack                |
+| Stack                | 5       | `$STK`      |  ✔  |  ✔    | Stores the values pushed to the stack                     |
+| Ports                | 6-15    | `$P0`-`$P9` |  ✔  |  ✔    | Stores the values of the ports                            |
 
