@@ -1,411 +1,275 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>Register View</title>
-        <script>
-            // Wrap your code in a DOMContentLoaded event listener
-            document.addEventListener("DOMContentLoaded", function () {
-                // Function to convert a decimal number to hexadecimal
-                function decimalToHex(decimal) {
-                    return decimal.toString(16).toUpperCase();
-                }
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <script src="../assets/js/jQuery/jquery-3.7.1.min.js"></script>
 
-                // Function to generate the header row with column names
-                function generateHeaderRow(cols) {
-                    const headerRow = document.querySelector("thead tr");
-                    for (let x = 0; x < cols; x++) {
-                        const colName = decimalToHex(x); // Get hex value for column
-                        const th = document.createElement("th");
-                        th.textContent = colName;
-                        th.setAttribute("colspan", "2");
-                        headerRow.appendChild(th);
-                    }
-                }
-                // Generate the header row with column names
-
-                // Function to generate the table
-                function generateTable(rows, cols) {
-                    const table = document.querySelector("table tbody");
-                    generateHeaderRow(cols / 2);
-                    for (let y = 0; y < rows; y++) {
-                        const row = document.createElement("tr");
-                        for (let x = 0; x < cols; x++) {
-                            const cell = document.createElement("td");
-                            if (x % 2 === 0) {
-                                cell.textContent = decimalToHex(y); // Display hex row number
-                            } else {
-                                const input = document.createElement("input");
-                                input.setAttribute(
-                                    "id",
-                                    `address_${decimalToHex(
-                                        x / 2
-                                    )}-${decimalToHex(y)}`
-                                );
-                                input.setAttribute(
-                                    "placeholder",
-
-                                    `${decimalToHex(
-                                        (x - 1) / 2
-                                    )}:${decimalToHex(y)}`
-                                );
-                                input.setAttribute("disabled", "disabled");
-                                cell.appendChild(input);
-                            }
-                            row.appendChild(cell);
-                        }
-                        table.appendChild(row);
-                    }
-                }
-
-                // Generate a 32x32 table
-                generateTable(16, 32);
-            });
-        </script>
         <style>
-            * {
-                box-sizing: border-box;
-                font-family: "Courier New", Courier, monospace;
-            }
-            table {
-                border-collapse: collapse;
-            }
-            td,
-            th {
-                border: 1px solid black;
-                padding: 0.25rem;
-            }
-            input {
-                width: 2.5rem;
+            :root {
+                --sidebar-width: 2.25vw;
+                /* colours of VS Code */
+                --bar-color: #181818;
+                --editor-color: #212121;
+                --margin-colour: #434343;
+                /* Set line width */
+                --editor-Line-Width: 0em;
             }
 
-            /* Assemblr Logo */
-            .gb {
-                color: #00ff0f;
-                background-color: #000000;
+            /* Main Style */
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                width: 100vw;
+                background-color: var(--editor-color);
+                color: #f0f0f0;
+                font-family: "Consolas", "Inconsolata", Courier, monospace;
+                display: flex;
+                flex-direction: column;
             }
-            .bg {
-                color: #000000;
-                background-color: #00ff0f;
+
+            /* Top row styles */
+            .toprow {
+                height: 2.25vw;
+                background-color: var(--bar-color);
+                display: flex;
+                align-items: center;
+            }
+
+            /* Sidebar styles */
+            .sidebar {
+                width: var(--sidebar-width);
+                background-color: var(--bar-color);
+                resize: horizontal;
+                overflow: auto;
+            }
+
+            /* Editor styles */
+            .editor {
+                background-color: var(--editor-color);
+                flex-grow: 1;
+                display: flex;
+            }
+
+            .lineNumberContainer {
+                padding: 0px;
+            }
+
+            .lineNumberContainer span {
+                display: block;
+                padding: var(--editor-Line-Width);
+            }
+
+            .editorContent {
+                flex-grow: 1;
+                position: relative;
+            }
+
+            .editorText {
+                resize: none;
+                background-color: transparent;
+                border: none;
+                font-family: inherit;
+                font-size: inherit;
+                color: inherit;
+                width: 100%;
+                height: 100%;
+            }
+
+            .editorText:focus {
+                outline: none;
+            }
+
+            .lineNum {
+                display: inline-block;
+                padding: var(--editor-Line-Width);
+            }
+
+            .container {
+                flex-grow: 1;
+                display: flex;
             }
         </style>
     </head>
     <body>
-        <h1>
-            <span class="gb">&nbsp; Assembl</span><span class="bg">r</span
-            ><span class="gb"> &nbsp;</span>
-        </h1>
+        <script>
+            window.addEventListener("DOMContentLoaded", (event) => {
+                var lineCount = 1;
+                const editor = document.getElementById("editorText");
+                const lineNumbers = document.querySelector(
+                    ".lineNumberContainer"
+                );
 
-        <div id="CPU">
-            <style>
-                .divTable {
-                    display: table;
-                    width: 35rem;
+                function refreshLineNum() {
+                    // Get the number of lines in the editor
+                    lineCount = editor.value.split("\n").length;
+                    console.log(lineCount);
+                    // Clear the line numbers
+                    lineNumbers.innerHTML = "";
+                    // Add the line numbers
+                    for (let i = 1; i <= lineCount; i++) {
+                        // Create a new line number with padded 0s
+                        let newLineNum = document.createElement("span");
+                        newLineNum.className = "lineNum";
+                        newLineNum.innerHTML = i.toString().padStart(2, "0");
+                        // Add the line number to the line number container
+                        lineNumbers.appendChild(newLineNum);
+                    }
                 }
-                .row {
-                    display: table-row;
+
+                // When the user makes edits to the editor, update the line numbers
+                editor.addEventListener("input", function () {
+                    refreshLineNum();
+                });
+
+                // on ctrl + s, save the file to a .asl file
+                document.addEventListener("keydown", function (event) {
+                    if (event.ctrlKey && event.key === "s") {
+                        event.preventDefault();
+                        // Get the text from the editor
+                        const text = editor.value;
+                        // Create a new file
+                        const file = new Blob([text], { type: "text/plain" });
+                        // Create a new URL for the file
+                        const url = URL.createObjectURL(file);
+                        // Create a new link
+                        const link = document.createElement("a");
+                        // Set the link to the file
+                        link.href = url;
+                        // Set the link to download the file
+                        link.download = "file.asl";
+                        // Click the link
+                        link.click();
+                    }
+                });
+
+                // on ctrl + o, open a .asl file
+                document.addEventListener("keydown", function (event) {
+                    if (event.ctrlKey && event.key === "s") {
+                        event.preventDefault();
+                        // Create a new input
+                        const input = document.createElement("input");
+                        // Set the input to accept .asl files
+                        input.accept = ".asl";
+                        // Set the input to be hidden
+                        input.style.display = "none";
+                        // Set the input to be a file input
+                        input.type = "file";
+                        // Add an event listener to the input
+                        input.addEventListener("change", function (event) {
+                            // Get the file
+                            const file = event.target.files[0];
+                            // Create a new file reader
+                            const reader = new FileReader();
+                            // Add an event listener to the reader
+                            reader.addEventListener("load", function (event) {
+                                // Get the text from the file
+                                const text = event.target.result;
+                                // Set the editor to the text
+                                editor.value = text;
+                            });
+                            // Read the file
+                            reader.readAsText(file);
+                        });
+                        // Click the input
+                        input.click();
+
+                        // refresh the line numbers
+                        refreshLineNum();
+                    }
+                });
+            });
+
+            // on tab, add 4 spaces to input
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Tab") {
+                    event.preventDefault();
+                    // Get the editor
+                    const editor = document.getElementById("editorText");
+                    // Get the cursor position
+                    const cursorPos = editor.selectionStart;
+                    // Get the text before the cursor
+                    const textBeforeCursor = editor.value.substring(
+                        0,
+                        cursorPos
+                    );
+                    // Get the text after the cursor
+                    const textAfterCursor = editor.value.substring(
+                        cursorPos,
+                        editor.value.length
+                    );
+                    // Set the editor to the text before the cursor + 4 spaces + the text after the cursor
+                    editor.value =
+                        textBeforeCursor + "    " + textAfterCursor;
+                    // Set the cursor position to the end of the 4 spaces
+                    editor.selectionStart = cursorPos + 4;
+                    editor.selectionEnd = cursorPos + 4;
                 }
-                .cell {
-                    display: table-cell;
-                    width: 75%;
-                    border: 1px solid black;
-                    padding: 0.25rem;
+            });
+
+
+            // on ctrl + n, create a new file
+            document.addEventListener("keydown", function (event) {
+                if (event.ctrlKey && event.key === "n") {
+                    event.preventDefault();
+                    // ask the user if they want to save the file
+                    const save = confirm("Do you want to save the file?");
+                    // if the user wants to save the file, save it
+                    if (save) {
+                        // Get the text from the editor
+                        const text = editor.value;
+                        // Create a new file
+                        const file = new Blob([text], { type: "text/plain" });
+                        // Create a new URL for the file
+                        const url = URL.createObjectURL(file);
+                        // Create a new link
+                        const link = document.createElement("a");
+                        // Set the link to the file
+                        link.href = url;
+                        // Set the link to download the file
+                        link.download = "file.asl";
+                        // Click the link
+                        link.click();
+                    }
+                    // Get the editor
+                    const editor = document.getElementById("editorText");
+                    // Set the editor to be empty
+                    editor.value = "";
+                    // refresh the line numbers
+                    refreshLineNum();
                 }
-            </style>
-            <div class="divTable">
-                <div class="row">
-                    <div class="cell">Accumulator</div>
-                    <div class="cell">
-                        <input
-                            type="text"
-                            id="accumulator"
-                            disabled
-                            value="0000"
-                        />
-                    </div>
-                    <div class="cell">Instruction Counter</div>
-                    <div class="cell">
-                        <input
-                            type="text"
-                            id="instructionCounter"
-                            disabled
-                            value="0000"
-                        />
-                    </div>
-                    <div class="cell">Program Counter</div>
-                    <div class="cell">
-                        <input
-                            type="text"
-                            id="programCounter"
-                            disabled
-                            value="0000"
-                        />
-                    </div>
-                    <div class="cell">Address Register</div>
-                    <div class="cell">
-                        <input
-                            type="text"
-                            id="addressRegister"
-                            disabled
-                            value="0000"
-                        />
-                    </div>
-                    <div class="cell">Clock</div>
-                    <div class="cell">
-                        <svg
-                            width="3rem"
-                            height="3rem"
-                            viewBox="0 0 100 100"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <circle
-                                id="clock"
-                                cx="50%"
-                                cy="50%"
-                                r="25%"
-                                stroke="red"
-                                stroke-width="1"
-                                fill="red"
-                            />
-                        </svg>
+            });
+
+        </script>
+        <div class="toprow">
+            <img
+                src="../assets/img/Assemblr Logo.svg"
+                height="25em"
+                alt="assemblr logo"
+            />
+        </div>
+        <div class="container">
+            <div class="editor child">
+                <div class="sidebar">
+                    <div class="lineNumberContainer">
+                        <span class="lineNum">01</span>
                     </div>
                 </div>
+                <div class="editorContent">
+                    <label for="editorText"></label>
+                    <textarea
+                        title="editorText"
+                        class="editorText"
+                        id="editorText"
+                    ></textarea>
+                    <span id="line1bg"></span>
+                </div>
             </div>
-        </div>
-        <style>
-            .container {
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-            }
-            .child {
-                width: 210%;
-            }
-        </style>
-        <div class="container divTable">
-            <div id="RAM" class="child">
-                <table border="1">
-                    <thead>
-                        <tr></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            <div id="Code" class="child row">
-                <textarea
-                    id="code"
-                    rows="16"
-                    cols="40"
-                    placeholder="Enter your code here"
-                ></textarea>
-                <button id="runButton" class="row" onclick="runCode()">
-                    Run
-                </button>
-            </div>
-        </div>
-        <script>
-            /*
-             * This script will eventually be in the assets/js/machine.js file
-             */
-
-            // Runs the code in the textarea
-            // Function to convert a decimal number to hexadecimal
-            function decimalToHex(decimal) {
-                return decimal.toString(16).toUpperCase();
-            }
-
-            // Function to convert a hexadecimal number to decimal
-            function hexToDecimal(hex) {
-                return parseInt(hex, 16);
-            }
-
-            // Function to convert a decimal number to binary
-            function decimalToBinary(decimal) {
-                return decimal.toString(2).padStart(4, "0");
-            }
-            // Function to convert a binary number to decimal
-            function binaryToDecimal(binary) {
-                return parseInt(binary, 2);
-            }
-
-            // List of peripherals and their corresponding binary values
-
-            let peripherals = {
-                output: {
-                    // Screen Addresses
-                    /*
-                    Pick a cell (0000 - 1111/0 - 15)
-                    pick an x coordinate
-                    pick a y coordinate
-                    pick an rgba value (4 different writes)
-
-                    */
-                    screen_refresh: 0, // 0000
-                    screen_cell: 1, // 0001 -- 0000 would refer to the first cell in the screen; 
-                    screen_x:2, // 0010
-                    screen_y: 3, // 0011
-                    screen_r: 4, // 0100
-                    screen_g: 5, // 0101
-                    screen_b: 6, // 0110
-                    screen_a: 7, // 0111
-
-                    screen
-
-
-
-                },
-                input:{
+            <div class="output child">
                 
-
-                }
-            };
-
-            let vars = {};
-
-            // vars is an object that contains all the variables in the program:
-            // vars = {
-            //     "variableName": {
-            //         "address": "0000",
-            //         "value": "0000",
-            //     }
-
-            // List of opcodes and their corresponding binary values and functions
-            var opcodes = {
-                HLT: {
-                    binary: "0000",
-                    function: function () {
-                        // Stop the program
-                        clearInterval(interval);
-                    },
-                },
-                STA: {
-                    binary: "0001",
-                    function: function (address) {
-                        // Store the value in the accumulator to the address
-                        ram[address] = accumulator;
-                    },
-                },
-                LDA: {
-                    binary: "0010",
-                    function: function (address) {
-                        // Load the value at the address into the accumulator
-                        accumulator = ram[address];
-                    },
-                },
-                ADD: {
-                    binary: "0011",
-                    function: function (address) {
-                        // Add the value at the address to the accumulator
-                        accumulator += ram[address];
-                    },
-                },
-                SUB: {
-                    binary: "0100",
-                    function: function (address) {
-                        // Subtract the value at the address from the accumulator
-                        accumulator -= ram[address];
-                    },
-                },
-                JMP: {
-                    binary: "0101",
-                    function: function (address) {
-                        // Jump to the address always
-                        programCounter = address;
-                    },
-                },
-                JGZ: {
-                    binary: "0110",
-                    function: function (address) {
-                        // Jump to the address if the accumulator is greater than zero
-                        if (accumulator > 0) {
-                            programCounter = address;
-                        }
-                    },
-                },
-                JLZ: {
-                    binary: "0111",
-                    function: function (address) {
-                        // Jump to the address if the accumulator is less than zero
-                        if (accumulator < 0) {
-                            programCounter = address;
-                        }
-                    },
-                },
-                JEZ: {
-                    binary: "1000",
-                    function: function (address) {
-                        // Jump to the address if the accumulator is equal to zero
-                        if (accumulator == 0) {
-                            programCounter = address;
-                        }
-                    },
-                },
-                JNZ: {
-                    binary: "1001",
-                    function: function (address) {
-                        // Jump to the address if the accumulator is not equal to zero
-                        if (accumulator != 0) {
-                            programCounter = address;
-                        }
-                    },
-                },
-                JRO: {
-                    binary: "1010",
-                    function: function (address) {
-                        // Jump to the address relative to the current address
-                        programCounter += address;
-                    },
-                },
-                INP: {
-                    binary: "1011",
-                    function: function (address) {
-                        // Get input from the user and store it in the accumulator
-                        accumulator = prompt("Enter a value"); //!TODO CHANGE ME!!!
-                    },
-                },
-                OUT: {
-                    binary: "1100",
-                    function: function (address) {
-                        // Output the value in the accumulator to the user
-                        alert(accumulator); //!TODO CHANGE ME!!!
-                    },
-                },
-                PRD: {
-                    binary: "1101",
-                    function: function (address) {
-                        address = hexToDecimal(address);
-                        // read value on peripheral input and store it in the accumulator
-                        if (address < 0 || address > 15) {
-                            alert("Invalid peripheral address");
-                        } else {
-                            accumulator = document.getElementById(
-                                `peripheral_${address}`
-                            ).value;
-                        }
-                        document.getElementById(`peripheral_${address}`).value =
-                            accumulator;
-                    },
-                },
-                PWR: {
-                    binary: "1110",
-                    function: function (address) {
-                        address = hexToDecimal(address);
-                        // Output the value in the accumulator to the peripheral output
-                        if (address < 0 || address > 15) {
-                            alert("Invalid peripheral address");
-                        } else {
-                            document.getElementById(
-                                `peripheral_${address}`
-                            ).value = accumulator;
-                        }
-                    },
-                },
-                NOP: {
-                    binary: "1111",
-                    function: function (address) {
-                        // Do nothing
-                    },
-                },
-            };
-        </script>
+            </div>
+        </div>
     </body>
 </html>
