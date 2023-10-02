@@ -62,6 +62,7 @@ The Assemblr Emulator project involves several challenging aspects, including:
 - uses 16 bit values
 </p>
 
+#### Syntax
 #### Instruction Set
 
 | Opcode | Hex    | Dec | Name  | Mnemonic               | Syntax                       | Description                                                                         |
@@ -81,15 +82,58 @@ The Assemblr Emulator project involves several challenging aspects, including:
 | 12     | `1100` | 12  | `PWR` | Port Write             | `PWR <port address> <value>` | Writes the specified value to the specified port                                    |
 | 13     | `1101` | 13  | `PRD` | Port Read              | `PRD <port address>`         | Reads the value from the specified port into the accumulator                        |
 
-## Registers
+### Registers
 
-| Name                 | Address | Reference   | Read | Write | Description                                               |
-| -------------------- | ------- | ----------- | :--: | :---: | --------------------------------------------------------- |
-| Accumulator          | 0       | `$ACC`      |  ✔  |  ✔    | Stores the result of arithmetic operations                |
-| Null Register        | 1       | `$NUL`      |  ✔  |  ❌   | Stores the value 0                                        |
-| Instruction Pointer  | 2       | `$IP`       |  ✔  |  ✔    | Stores the address of the next instruction to be executed |
-| Instruction Register | 3       | `$IR`       |  ✔  |  ❌   | Stores the current instruction being executed             |
-| Stack Pointer        | 4       | `$SP`       |  ✔  |  ✔    | Stores the address of the top of the stack                |
-| Stack                | 5       | `$STK`      |  ✔  |  ✔    | Stores the values pushed to the stack                     |
-| Ports                | 6-15    | `$P0`-`$P9` |  ✔  |  ✔    | Stores the values of the ports                            |
+| Name                 | Address | Reference   | Binary Reference | Read | Write | Description                                               |
+|----------------------|:-------:|:-----------:|:----------------:|:----:|:-----:|-----------------------------------------------------------|
+| Accumulator          | 0       | `$ACC`      | `0000`           | ✓    | ✓     | Stores the result of arithmetic operations                |
+| Null Register        | 1       | `$NUL`      | `0001`           | ✓    | ×     | Stores the value 0                                        |
+| Instruction Pointer  | 2       | `$IP`       | `0010`           | ✓    | ✓     | Stores the address of the next instruction to be executed |
+| Instruction Register | 3       | `$IR`       | `0011`           | ✓    | ×     | Stores the current instruction being executed             |
+| Stack Pointer        | 4       | `$SP`       | `0100`           | ✓    | ✓     | Stores the address of the top of the stack                |
+| Stack                | 5       | `$STK`      | `0101`           | ✓    | ✓     | Stores the values pushed to the stack                     |
+| Ports                | 6-15    | `$P0`-`$P9` | `0110` - `1111`  | ✓    | ✓     | Stores the values of the ports                            |
 
+
+### Addressing Modes
+
+There are 4 supported addressing modes:
+
+#### Immediate
+
+The value is specified directly in the instruction. For example:
+
+```asm
+LDA imm 0001
+```
+This instruction will load the value `0001` into the accumulator.
+
+#### Direct
+
+The value is specified by a memory address. For example:
+
+```asm
+LDA dir 0001
+```
+
+This instruction will load the value stored at memory address `0001` into the accumulator.
+
+#### Indirect
+
+The value is specified by a memory address stored in another memory address. For example:
+
+```asm
+LDA ind 0001
+```
+
+This instruction will load the value stored at the memory address stored at memory address `0001` into the accumulator.
+
+#### Relative
+
+The value is specified by an offset relative to the current instruction. For example:
+
+```asm
+LDA rel 0001
+```
+
+This instruction will load the value stored at the memory address `0001` bytes away from the current instruction into the accumulator.
