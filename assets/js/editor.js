@@ -51,12 +51,15 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
     // on ctrl + o, open a .asl file
     document.addEventListener("keydown", function (event) {
-        if (event.ctrlKey && event.key === "s") {
+        if (event.ctrlKey && event.key === "o") {
             event.preventDefault();
             // Create a new input
             const input = document.createElement("input");
-            // Set the input to accept .asl files
-            input.accept = ".asl";
+            // Set the input to only accept .asl files
+            input.accept = ".asl,";
+            input.name = "asl";
+            // set the input to reject all other files
+            input.setAttribute("capture", "capture");
             // Set the input to be hidden
             input.style.display = "none";
             // Set the input to be a file input
