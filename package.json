@@ -1,14 +1,13 @@
 {
-  "name": "assemblr",
-  "version": "0.0.1",
-  "description": "Hello World!",
-  "main": "main.js",
   "author": "Joshua Cotugno",
+  "description": "Hello World!",
+  "devDependencies": {
+    "electron": "^26.2.1"
+  },
   "license": "MIT",
+  "name": "assemblr",
   "scripts": {
     "start": "electron ."
   },
-  "devDependencies": {
-    "electron": "^26.2.1"
-  }
+  "version": "0.0.1"
 }

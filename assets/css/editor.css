@@ -1,6 +1,6 @@
 :root {
     /* Set the width of the sidebar */
-    --sidebar-width: 2.25vw;
+    /* --sidebar-width: 40px;
     /* colours of VS Code */
     --bar-color: #181818;
     --active-bar-color: #3c3c3c;
@@ -8,14 +8,17 @@
     --margin-colour: #434343;
     --editor-text-color: #ececec;
     --ui-text-color: #eeeeee;
-    /* Set line width */
+    /* Set line width * / /
     --editor-Line-Width: 0em;
-    /* Set font sizes */
+    /* Set font sizes * /3c3c3c
     --navbar-font-size: 1vw;
     --editor-font-size: 1.5vw;
+    --navbar-font-family: "Arial", "Helvetica Neue", Helvetica, sans-serif;
+    --editor-font-family: "JetBrains Mono", "Consolas", "Inconsolata", Courier,
+        monospace;
 }
 
-/* Main Style */
+/* Main Style * /
 body {
     margin: 0;
     padding: 0;
@@ -26,31 +29,50 @@ body {
     font-family: "Consolas", "Inconsolata", Courier, monospace;
     display: flex;
     flex-direction: column;
+    top: 10;
 }
 
-
-/* Top row styles */
+/* Top row styles * /
 .toprow {
     height: 2.25vw;
     background-color: var(--bar-color);
     display: flex;
     align-items: center;
     font-size: small;
+    top:0;
+    position: fixed;
+    width: 100%;
+    margin:0vw;
+    padding-bottom: 1px;
+    z-index: 1;
 }
 
-/* Sidebar styles */
+/* Sidebar styles * /
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--bar-color);
-    /* resize: horizontal; */
     overflow: auto;
+    align-items: right;
+    padding-right: 5px;
+    text-align: left;
+    flex-direction: column;
+    /* Scroll with rest of conntent * /
+    position: fixed;
+    top: 2.25vw;
 }
 
-/* Editor styles */
+/* Editor styles * /
 .editor {
     background-color: var(--editor-color);
     flex-grow: 1;
     display: flex;
+    /* Scroll with rest of conntent * /
+    position: fixed;
+    top: 2.25vw;
+    width: 100%;
+    margin-left: var(--sidebar-width);
+    /* hide scroll bar * /
+    overflow: hidden;
 }
 
 .lineNumberContainer {
@@ -97,7 +119,7 @@ body {
     display: flex;
 }
 
-/* Navbar container */
+/* Navbar container * /
 .navbar {
     overflow: hidden;
     background-color: var(--bar-color);
@@ -106,13 +128,13 @@ body {
     font-size: medium;
 }
 
-/* The dropdown container */
+/* The dropdown container * /
 .dropdown {
     float: left;
     overflow: hidden;
 }
 
-/* Shared styles for navbar links and dropdown button */
+/* Shared styles for navbar links and dropdown button * /
 .navbar a,
 .dropdown .dropbtn {
     color: var(--ui-text-color);
@@ -121,33 +143,33 @@ body {
     width: 4vw;
     background-color: var(--bar-color);
     text-decoration: none;
-    /* font-weight: 500; */
+    /* font-weight: 500; * /
 }
 
-/* Links inside the navbar */
+/* Links inside the navbar * /
 .navbar a {
     float: left;
-    /* font-size: medium; */
+    /* font-size: medium; * /
 }
 
-/* Dropdown button */
+/* Dropdown button * /
 .dropdown .dropbtn {
     border: none;
     outline: none;
-    font-family: inherit; /* Important for vertical align on mobile phones */
-    margin: 0; /* Important for vertical align on mobile phones */
+    font-family: inherit; /* Important for vertical align on mobile phones * /
+    margin: 0; /* Important for vertical align on mobile phones * /
     font-size: small;
     text-align: center;
     border-radius: 0.25vw;
 }
 
-/* Add a background color to navbar links on hover */
+/* Add a background color to navbar links on hover * /
 .navbar a:hover,
 .dropdown:hover .dropbtn {
     background-color: var(--active-bar-color);
 }
 
-/* Dropdown content (hidden by default) */
+/* Dropdown content (hidden by default) * /
 .dropdown-content {
     display: none;
     position: absolute;
@@ -157,11 +179,11 @@ body {
     z-index: 1;
 }
 
-/* Links inside the dropdown */
+/* Links inside the dropdown * /
 .dropdown-content a {
     float: left;
     color: var(--ui-text-color);
-    /* padding: 12px 16px; */
+    /* padding: 12px 16px; * /
     text-decoration: none;
     display: block;
     text-align: left;
@@ -171,19 +193,19 @@ body {
 .dropdown-content .shortcut {
     color: var(--ui-text-color);
     background-color: var(--bar-color);
-    /* padding: 12px 16px; */
+    /* padding: 12px 16px; * /
     text-decoration: none;
     display: block;
     text-align: right;
     width: 100%;
 }
 
-/* Add a grey background color to dropdown links on hover */
+/* Add a grey background color to dropdown links on hover * /
 .dropdown-content a:hover {
     background-color: var(--active-bar-color);
 }
 
-/* Show the dropdown menu on hover */
+/* Show the dropdown menu on hover * /
 .dropdown:hover .dropdown-content {
     display: block;
 }
@@ -197,4 +219,174 @@ body {
     background-color: var(--active-bar-color);
     text-align: right;
     padding-right: 0.25vw;
+}
+*/
+/* Apply CSS variables defined in :root */
+:root {
+    --sidebar-width: 40px;
+    --bar-color: #181818;
+    --active-bar-color: #3c3c3c;
+    --editor-color: #212121;
+    --margin-colour: #434343;
+    --editor-text-color: #ececec;
+    --ui-text-color: #eeeeee;
+    --editor-Line-Width: 0em;
+    --navbar-font-size: 1vw;
+    --editor-font-size: 1.5vw;
+    --navbar-font-family: "Arial", "Helvetica Neue", Helvetica, sans-serif;
+    --editor-font-family: "JetBrains Mono", "Consolas", "Inconsolata", Courier, monospace;
+}
+
+/* Apply styles to the entire document */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: var(--editor-color);
+    font-family: var(--editor-font-family);
+}
+
+/* Apply styles to the head section */
+/* head {
+    /* Add your head styles here if needed * /
+    "hidden": "true"
+} */
+
+/* Apply styles to the top navbar */
+.toprow {
+    position: fixed; /* Set to fixed position */
+    top: 0; /* Stick it to the top of the viewport */
+    background-color: var(--bar-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    width: 100%; /* Make it span the full width of the viewport */
+}
+
+/* Apply styles to the dropdown menu button */
+.dropbtn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--ui-text-color);
+    font-family: var(--navbar-font-family);
+    font-size: var(--navbar-font-size);
+}
+
+/* Apply styles to the dropdown content */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--bar-color);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+/* Apply styles to links within the dropdown */
+.dropdown-content a {
+    color: var(--ui-text-color);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Apply styles to links on hover within the dropdown */
+.dropdown-content a:hover {
+    background-color: var(--active-bar-color);
+}
+
+/* Apply styles to the sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bar-color);
+    background-color: var(--bar-color);
+    height: 100%;
+}
+
+/* Apply styles to the line number container */
+.lineNumberContainer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+    padding-right: 0.5rem;
+    color: var(--ui-text-color);
+}
+
+/* Apply styles to the line number */
+.lineNum {
+    font-size: 1.2rem;
+}
+
+/* Apply styles to the editor content */
+.editorContent {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+/* Apply styles to the editor text area */
+.editorText {
+    background-color: var(--editor-color);
+    color: var(--editor-text-color);
+    border: none;
+    width: 100%;
+    height: 100%;
+    resize: none;
+    font-size: var(--editor-font-size);
+    font-family: var(--editor-font-family);
+}
+
+/* Apply styles to the bottom bar */
+.bottomBar {
+    background-color: var(--bar-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+/* Apply styles to status, cursor, and autosave elements */
+#status, #cursor, #autoSave {
+    color: var(--ui-text-color);
+    font-size: 1rem;
+}
+
+/* Apply styles to the autosave switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    margin-left: 1rem;
+}
+
+/* Apply styles to the slider within the autosave switch */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 20px;
+}
+
+/* Apply styles to the slider's round handle */
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
 }

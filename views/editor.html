@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -5,6 +6,11 @@
         <title>editor</title>
         <script src="../assets/js/jQuery/jquery-3.7.1.min.js"></script>
         <link rel="stylesheet" href="../assets/css/editor.css" />
+        <!-- Favicon -->
+        <link
+            rel="shortcut icon"
+            href="../assets/img/icons/48x48/main_icon.ico"
+        />
     </head>
     <body>
         <script src="../assets/js/editor.js"></script>
@@ -21,40 +27,41 @@
             <div class="dropdown">
                 <button class="dropbtn">File</button>
                 <div class="dropdown-content">
-                    <a href="javascript:alert('Open')">Open</a>
-                    <a href="javascript:alert('Save')">Save</a>
-                    <a href="javascript:alert('Save As')">Save As</a>
-                    <a href="javascript:alert('Close')">Close</a>
+                    <a href="javascript:open()">Open</a>
+                    <a href="javascript:save()">Save</a>
+                    <a href="javascript:saveAs()">Save As</a>
+                    <a href="javascript:close()">Close</a>
+                    <a href="javascript:toggleAutoSave()">Toggle Auto Save</a>
                 </div>
-            </div>
-            <div class="dropdown">
-                <button class="dropbtn">Edit</button>
-                <div class="dropdown-content">
-                    <a href="javascript:alert('Undo')">Undo</a>
-                    <a href="javascript:alert('Redo')">Redo</a>
-                    <a href="javascript:alert('Cut')">Cut</a>
-                    <a href="javascript:alert('Copy')">Copy</a>
-                    <a href="javascript:alert('Paste')">Paste</a>
-                    <a href="javascript:alert('Format')">Format</a>
+                <div class="dropdown">
+                    <button class="dropbtn">Edit</button>
+                    <div class="dropdown-content">
+                        <a href="javascript:undo()">Undo</a>
+                        <a href="javascript:redo()">Redo</a>
+                        <a href="javascript:cut()">Cut</a>
+                        <a href="javascript:copy()">Copy</a>
+                        <a href="javascript:paste()">Paste</a>
+                        <a href="javascript:format()">Format</a>
+                    </div>
                 </div>
-            </div>
-            <div class="dropdown">
-                <button class="dropbtn">Run</button>
-                <div class="dropdown-content">
-                    <a href="javascript:alert('Run')">Run Normal</a>
-                    <a href="javascript:alert('Run')">Run Debug</a>
+                <div class="dropdown">
+                    <button class="dropbtn">Run</button>
+                    <div class="dropdown-content">
+                        <a href="javascript:runNormal()">Run Normal</a>
+                        <a href="javascript:runDebug()">Run Debug</a>
+                    </div>
                 </div>
-            </div>
-            <div class="dropdown">
-                <button class="dropbtn">Help</button>
-                <div class="dropdown-content">
-                    <a href="javascript:alert('Help')">Help</a>
-                    <a href="javascript:alert('About')">About</a>
-                    <a href="javascript:alert('Shortcuts')">Shortcuts</a>
+                <div class="dropdown">
+                    <button class="dropbtn">Help</button>
+                    <div class="dropdown-content">
+                        <a href="javascript:showHelp()">Help</a>
+                        <a href="javascript:showAbout()">About</a>
+                        <a href="javascript:showShortcuts()">Shortcuts</a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="container">
+        <div class="container content">
             <div class="editor child">
                 <div class="sidebar">
                     <div class="lineNumberContainer">
@@ -68,9 +75,23 @@
                         class="editorText"
                         id="editorText"
                     ></textarea>
-                    <span id="line1bg"></span>
                 </div>
             </div>
+        </div>
+        <div id="bottomBar" class="bottomBar">
+            <div id="status">
+                <span id="statusText">Ready</span>
+            </div>
+            <div id="cursor">
+                <span id="cursorText">Ln 1, Col 1</span>
+            </div>
+            <div id="autoSave">
+                <span id="autoSaveText">Auto Save: Off</span>
+                <!-- Switch for Autosave -->
+                <label class="switch">
+                    <input type="checkbox" id="autoSaveSwitch" />
+                    <span class="slider round"></span>
+                </label>
         </div>
     </body>
 </html>

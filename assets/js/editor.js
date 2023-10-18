@@ -1,9 +1,10 @@
+//! import dev functions from "./dev.js";
+import { dev } from "./dev.js";
+
 window.addEventListener("DOMContentLoaded", (event) => {
     var lineCount = 1;
     const editor = document.getElementById("editorText");
-    const lineNumbers = document.querySelector(
-        ".lineNumberContainer"
-    );
+    const lineNumbers = document.querySelector(".lineNumberContainer");
 
     function refreshLineNum() {
         // Get the number of lines in the editor
@@ -32,20 +33,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
     document.addEventListener("keydown", function (event) {
         if (event.ctrlKey && event.key === "s") {
             event.preventDefault();
-            // Get the text from the editor
-            const text = editor.value;
-            // Create a new file
-            const file = new Blob([text], { type: "text/plain" });
-            // Create a new URL for the file
-            const url = URL.createObjectURL(file);
-            // Create a new link
-            const link = document.createElement("a");
-            // Set the link to the file
-            link.href = url;
-            // Set the link to download the file
-            link.download = "file.asl";
-            // Click the link
-            link.click();
+            save();
         }
     });
 
@@ -53,41 +41,19 @@ window.addEventListener("DOMContentLoaded", (event) => {
     document.addEventListener("keydown", function (event) {
         if (event.ctrlKey && event.key === "o") {
             event.preventDefault();
-            // Create a new input
-            const input = document.createElement("input");
-            // Set the input to only accept .asl files
-            input.accept = ".asl,";
-            input.name = "asl";
-            // set the input to reject all other files
-            input.setAttribute("capture", "capture");
-            // Set the input to be hidden
-            input.style.display = "none";
-            // Set the input to be a file input
-            input.type = "file";
-            // Add an event listener to the input
-            input.addEventListener("change", function (event) {
-                // Get the file
-                const file = event.target.files[0];
-                // Create a new file reader
-                const reader = new FileReader();
-                // Add an event listener to the reader
-                reader.addEventListener("load", function (event) {
-                    // Get the text from the file
-                    const text = event.target.result;
-                    // Set the editor to the text
-                    editor.value = text;
-                });
-                // Read the file
-                reader.readAsText(file);
-            });
-            // Click the input
-            input.click();
-
-            // refresh the line numbers
-            refreshLineNum();
+            open();
         }
     });
 });
+
+// Asynchronous check for file changes, if there is, then if autoSave is enabled, save the file
+setInterval(function () {
+    if (document.getElementById("editorText").value !== currentFileContents) {
+        if (autoSave) {
+            save();
+        }
+    }
+}, autoSaveInterval);
 
 // on tab, add 4 spaces to input
 document.addEventListener("keydown", function (event) {
@@ -98,10 +64,7 @@ document.addEventListener("keydown", function (event) {
         // Get the cursor position
         const cursorPos = editor.selectionStart;
         // Get the text before the cursor
-        const textBeforeCursor = editor.value.substring(
-            0,
-            cursorPos
-        );
+        const textBeforeCursor = editor.value.substring(0, cursorPos);
         // Get the text after the cursor
         const textAfterCursor = editor.value.substring(
             cursorPos,
@@ -119,30 +82,19 @@ document.addEventListener("keydown", function (event) {
 document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.key === "n") {
         event.preventDefault();
-        // ask the user if they want to save the file
-        const save = confirm("Do you want to save the file?");
-        // if the user wants to save the file, save it
-        if (save) {
-            // Get the text from the editor
-            const text = editor.value;
-            // Create a new file
-            const file = new Blob([text], { type: "text/plain" });
-            // Create a new URL for the file
-            const url = URL.createObjectURL(file);
-            // Create a new link
-            const link = document.createElement("a");
-            // Set the link to the file
-            link.href = url;
-            // Set the link to download the file
-            link.download = "file.asl";
-            // Click the link
-            link.click();
-        }
-        // Get the editor
-        const editor = document.getElementById("editorText");
-        // Set the editor to be empty
-        editor.value = "";
-        // refresh the line numbers
-        refreshLineNum();
+        newFile();
     }
 });
+
+ApplicationMenu = {
+    File: {
+        save: function () {},
+        saveAs: function () {},
+        open: function () {},
+        new: function () {},
+        toggleAutoSave: function () {
+            autoSave = !autoSave;
+            
+        },
+    },
+};

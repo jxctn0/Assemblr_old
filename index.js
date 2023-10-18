@@ -1,33 +1,36 @@
-// Start Creating the Assemblr App
+//! Electron Launcher
 
-const { app, BrowserWindow } = require('electron') // Need Electron 
+const { app, BrowserWindow } = require('electron'); //? imports electron
+const path = require('path'); //? imports path
 
-// include the Node.js 'path' module at the top of your file
-const path = require('node:path')
+function createWindow() { //? creates the window
+  const win = new BrowserWindow({
+    width: function() { return electron.screen.getPrimaryDisplay().workAreaSize.width; }, //* set width to full screen: width: function() { return electron.screen.getPrimaryDisplay().workAreaSize.width; }
+    height: function() { return electron.screen.getPrimaryDisplay().workAreaSize.height; }, //* set height to full screen: height: function() { return electron.screen.getPrimaryDisplay().workAreaSize.height; }
+    webPreferences: {
+      nodeIntegration: true //? allows node integration (node.js) in the window
+    },
+    //% HIDE MENU BAR
+    autoHideMenuBar: true,
+    //? SET WINDOW ICON
+    icon: path.join(__dirname, 'assets', 'img', 'icons', '48x48', 'main_icon.png'),
+  });
 
-const createWindow = () => { // Create Window
-
-    const win = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js')
-        } // Load preload.js
-    })
-
-    // Load views/menu.html on startup
-    win.loadFile('./views/basic.html')
+  win.loadFile(path.join(__dirname, 'views', 'editor.html')); //? loads the editor.html file
 }
 
-app.whenReady().then(() => { // When app is ready create window
-    createWindow() // Create window
+app.whenReady().then(() => {
+  createWindow(); //? creates the window
 
-    app.on('activate', () => { // When app is activated create window
-        if (BrowserWindow.getAllWindows().length === 0) createWindow() // If no windows are open create window
-    })
-})
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+});
 
-app.on('window-all-closed', () => { // When all windows are closed quit the app
-    if (process.platform !== 'darwin') app.quit() // If not macOS quit the app 
-    // this needs to be done because macOS apps stay open 
-})
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
