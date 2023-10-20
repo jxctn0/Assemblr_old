@@ -8,6 +8,8 @@ const path = require("path");
 const electron = require("electron");
 // Import process module
 const process = require("process");
+const { inherits } = require("util");
+const { create } = require("domain");
 
 // Set Globals
 global.save_file_location = null;
@@ -94,34 +96,63 @@ function findFile(file_name, locations = ["./"]) {
     }
 }
 
-// create menu using Javascript
-function create_menu() {
-    // create menu
-    var menu_root = document.getElementById("menu-root");
-    var menu_item = document.createElement("div");
-    menu_item.classList.add("menu-item");
-    // check if there is a save file with content
-    // if there is, add a menu item to "Continue"
-    // if there isn't, show "Start New" instead.
-    if (findSave() != -1) {
-        menu_item.innerHTML = "Continue";
-        menu_item.id = "menu-item-continue";
-        // add event listener to menu item
-        menu_item.addEventListener("click", function () {
-            // load last save in game.html
-            // redirect to game.html
-            save_file_location = preventDefault(); // prevent default action
-            window.location.href =
-                "../views/game.html?savefile=" + save_file_location; // redirect to game.html with save file
-        });
-    } else {
-        menu_item.innerHTML = "Start New";
-        menu_item.id = "menu-item-start-new";
+
+// Menu Creation
+
+class MenuOption {
+    // Each object should have the following properties:
+    // name: The name of the button
+    // action: The function to run when the button is clicked
+    // icon: The icon to display on the button
+    // size: The size of the button (1/2, full or double)
+    constructor (name="",icon="",action= function(){alert("No action defined")}
+    ,size=1) {
+        this.name = name;
+        this.icon = icon;
+        this.action = action;
+        this.size = size;
+    }
+
+    // Remove Attributes
+    RemoveName() {
+        // remove the name from the option
+        this.name = "";
+    }
+    RemoveIcon() {
+        // remove the icon from the option
+        this.icon = "";
+    }
+    RemoveAction() {
+        // remove the action from the option
+        this.action = function(){alert("No action defined")};
+    }
+    RemoveSize() {
+        // remove the size from the option
+        this.size = 1;
+    }
+    
+}
+
+class Menu {
+    // Menu should be an array of objects, all displayed as buttons on an overlay window
+    
+
+    constructor (titleBarName, menuObjects) {
+        this.titleBarName = titleBarName;
+        this.menuObjects = menuObjects;
+    }
+    ShowMenu() {
+        // Shows the menu in a popup window
+
+    }
+    AddItem() {
+        // add an item to the menu
+        new MenuOption();
+    }
+    RemoveItem() {
+        // remove the option from the menu
     }
 }
 
-// wait for DOM to load
-document.addEventListener("DOMContentLoaded", function (event) {
-    // run menu script
-    create_menu();
-});
+MainMenu = new Menu("Main Menu",[]);
+MainMenu.

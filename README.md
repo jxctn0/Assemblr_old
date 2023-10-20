@@ -65,8 +65,8 @@ The Assemblr Emulator project involves several challenging aspects, including:
 #### Syntax
 #### Instruction Set
 
-| Opcode | Hex    | Dec | Name  | Mnemonic               | Syntax                       | Description                                                                         |
-| ------ | ------ | --- | ----- | ---------------------- | ---------------------------- | ----------------------------------------------------------------------------------- |
+| Opcode | Bin    | Dec | Name  | Mnemonic               | Syntax                       | Description                                                                         |
+|:------:|:------:|:---:|:-----:| ---------------------- | ---------------------------- | ----------------------------------------------------------------------------------- |
 | 0      | `0000` | 0   | `HLT` | Halt                   | `HLT`                        | Stops the execution of the program                                                  |
 | 1      | `0001` | 1   | `STA` | Store                  | `STA <location>`             | Stores the value in the accumulator into memory                                     |
 | 2      | `0010` | 2   | `LDA` | Load                   | `LDA <location>`             | Loads a value from memory into the accumulator                                      |
@@ -81,6 +81,10 @@ The Assemblr Emulator project involves several challenging aspects, including:
 | 11     | `1011` | 11  | `INP` | Input                  | `INP <location>`             | Inputs a value from the specified port into the accumulator                         |
 | 12     | `1100` | 12  | `PWR` | Port Write             | `PWR <port address> <value>` | Writes the specified value to the specified port                                    |
 | 13     | `1101` | 13  | `PRD` | Port Read              | `PRD <port address>`         | Reads the value from the specified port into the accumulator                        |
+| 14     | `1110` | 14  | `PSH` | Push                   | `PSH <location>`             | Pushes the value in the accumulator to the stack                                    |
+| 15     | `1111` | 15  | `POP` | Pop                    | `POP <location>`             | Pops the value from the stack into the accumulator                                  |
+| 16     | `10000`| 16  | `NOP` | No Operation           | `NOP`                        | Does nothing for one tick                                                           |
+
 
 ### Registers
 
