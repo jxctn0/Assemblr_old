@@ -198,7 +198,7 @@ INSTRUCTION_SET = {
 //    Instruction in the instruction register is executed
 // Restart the cycle
 
-function executeProgram() {
+function executeInstruction() {
     //! FETCH
     // Address of the instruction is in the program counter
     instruction_address = PC.getValue();
@@ -212,5 +212,13 @@ function executeProgram() {
     }
     //! DECODE
     // Instruction in the instruction register is decoded into an opcode
-    opcode = INSTRUCTION_SET[IR.getValue().slice(0, 4)]; // slice the first 4 bits
+    opcode = IR.getValue().substring(0, 4);
+    // Decode the opcode into an instruction
+    instruction = INSTRUCTION_SET[opcode].execute
+    if (VERBOSE) {
+        console.log("DECODE: " + opcode);
+    }
+    //! EXECUTE
+    // Instruction in the instruction register is executed
+    instruction();
 }
