@@ -9,11 +9,14 @@
                 --background-colour: #373737;
                 --margin-colour: #808080;
                 --button-colour: #3d3d3d;
-                --button-colour-active: #4d4d4d;
+                --button-colour-active: #636363;
+                --titlebar-colour: #4d4d4d;
+                --ui-text-color: #ececec;
             }
             * {
-                font-family: 'Consolas', Courier, monospace;
+                font-family: "Consolas", Courier, monospace;
                 font-size: 16px;
+                background-color: var(--background-colour);
             }
             /* Style The Dropdown Button */
             .dropbtn {
@@ -29,6 +32,7 @@
             .dropdown {
                 position: relative;
                 display: inline-block;
+                font-weight: bold;
             }
 
             /* Dropdown Content (Hidden by Default) */
@@ -37,13 +41,13 @@
                 position: absolute;
                 background-color: #f9f9f9;
                 min-width: 200px;
-                z-index: 1;
+                z-index: 2;
                 border-radius: 10px;
             }
 
             /* Links inside the dropdown */
             .dropdown-content a {
-                color: black;
+                color: var(--ui-text-color);
                 padding: 5px 10px;
                 text-decoration: none;
                 display: block;
@@ -57,6 +61,11 @@
 
             /* Show the dropdown menu on hover */
             .dropdown:hover .dropdown-content {
+                display: block;
+            }
+
+            /* Show the dropdown menu when clicked */
+            .dropdown:active .dropdown-content {
                 display: block;
             }
 
@@ -75,18 +84,53 @@
                 overflow: hidden;
                 display: block;
             }
+
+            u {
+                /* inherit all styles */
+                background-color: transparent;
+            }
         </style>
     </head>
     <body>
-        <div id="topBar" class="titlebar">
-            <div class="dropdown">
+        <div id="topBar" class="titlebar" width="100%">
+            <div id="file" class="dropdown">
                 <button class="dropbtn"><u>F</u>ile</button>
                 <div class="dropdown-content">
                     <a href="javascript:openFile()">Open</a>
                     <a href="javascript:saveFile()">Save</a>
                     <a href="javascript:saveFileAs()">Save As</a>
                     <a href="javascript:quitWindow()">Close</a>
-                    <a href="javascript:toggleAutoSave()">Toggle Auto Save&nbsp;<span id="autoSaveStatus">On</span></a>
+                    <a href="javascript:toggleAutoSave()"
+                        >Toggle Auto Save&nbsp;<span id="autoSaveStatus"
+                            >On</span
+                        ></a
+                    >
+                </div>
+            </div>
+            <div id="edit" class="dropdown">
+                <button class="dropbtn"><u>E</u>dit</button>
+                <div class="dropdown-content">
+                    <a href="javascript:undo()">Undo</a>
+                    <a href="javascript:redo()">Redo</a>
+                    <a href="javascript:cut()">Cut</a>
+                    <a href="javascript:copy()">Copy</a>
+                    <a href="javascript:paste()">Paste</a>
+                    <a href="javascript:format()">Format</a>
+                </div>
+            </div>
+            <div id="run" class="dropdown">
+                <button class="dropbtn"><u>R</u>un</button>
+                <div class="dropdown-content">
+                    <a href="javascript:runNormal()">Run Normal</a>
+                    <a href="javascript:runDebug()">Run Debug</a>
+                </div>
+            </div>
+            <div id="help" class="dropdown">
+                <button class="dropbtn"><u>H</u>elp</button>
+                <div class="dropdown-content">
+                    <a href="javascript:showHelp()">Help</a>
+                    <a href="javascript:showAbout()">About</a>
+                    <a href="javascript:showShortcuts()">Shortcuts</a>
                 </div>
             </div>
         </div>
