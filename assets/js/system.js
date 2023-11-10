@@ -102,9 +102,22 @@ class Stack {
     }
 
     // get top value
-    getValue() {
+    read() {
         return this.stack[this.stack.length - 1];
     }
+}
+
+class Memory {
+    constructor(size) {
+        this.memory = new Array(size);
+    }
+    write(address, value) {
+        this.memory[address] = value;
+    }
+    read(address) {
+        return this.memory[address];
+    }
+
 }
 
 class System {
@@ -187,21 +200,24 @@ class System {
         }
     }
 
-    // create memory
-    CreateMemory(size = 256) {
-        // create memory
-        var memory = new Array(size);
+    assemble(code) {
+        // Assemble code into memory
 
-        // return memory
-        return memory;
+        //? Split code into lines
+        CodeLines = code.split("\n");
+
+        //? Loop through lines
+        for (line in lines) { //Fix: 
+
+        }
     }
 
     printSystem() {
         console.log(this.registers); // CLI Only
     }
-
-    displaySystem() {
-        // Shows the system in the GUI
-        // TODO!!
-    }
 }
+
+
+// Path: assets/js/assembly.js
+
+// Exportable Functions:

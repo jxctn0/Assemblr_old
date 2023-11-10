@@ -3,95 +3,92 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>editor</title>
-        <script src="../assets/js/jQuery/jquery-3.7.1.min.js"></script>
-        <link rel="stylesheet" href="../assets/css/editor.css" />
-        <!-- Favicon -->
-        <link
-            rel="shortcut icon"
-            href="../assets/img/icons/48x48/main_icon.ico"
-        />
+        <title>Editor</title>
+        <style>
+            :root {
+                --background-colour: #373737;
+                --margin-colour: #808080;
+                --button-colour: #3d3d3d;
+                --button-colour-active: #4d4d4d;
+            }
+            * {
+                font-family: 'Consolas', Courier, monospace;
+                font-size: 16px;
+            }
+            /* Style The Dropdown Button */
+            .dropbtn {
+                background-color: var(--button-colour);
+                color: white;
+                padding: 5px 10px;
+                border: none;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+            /* The container <div> - needed to position the dropdown content */
+            .dropdown {
+                position: relative;
+                display: inline-block;
+            }
+
+            /* Dropdown Content (Hidden by Default) */
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: #f9f9f9;
+                min-width: 200px;
+                z-index: 1;
+                border-radius: 10px;
+            }
+
+            /* Links inside the dropdown */
+            .dropdown-content a {
+                color: black;
+                padding: 5px 10px;
+                text-decoration: none;
+                display: block;
+            }
+
+            /* Change color of dropdown links on hover */
+            .dropdown-content a:hover {
+                background-color: #f1f1f1;
+                border-radius: 10px;
+            }
+
+            /* Show the dropdown menu on hover */
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+
+            /* Change the background color of the dropdown button when the dropdown content is shown */
+            .dropdown:hover .dropbtn {
+                background-color: var(--button-colour-active);
+            }
+
+            .titlebar {
+                background-color: var(--background-colour);
+                /* padding: 5px 10px; */
+                cursor: pointer;
+                border-radius: 5px;
+                width: 100vm;
+                margin: 0px;
+                overflow: hidden;
+                display: block;
+            }
+        </style>
     </head>
     <body>
-        <script src="../assets/js/editor.js"></script>
-        <div class="navbar toprow">
-            <a href="javascript:showMenu()" class="dropbtn menuButton">
-                <svg width="20" height="20">
-                    &nbsp;
-                    <path
-                        d="M 0 4 L 20 4 L 20 6 L 0 6 Z M 0 9 L 20 9 L 20 11 L 0 11 Z M 0 14 L 20 14 L 20 16 L 0 16 Z"
-                        fill="var(--margin-colour)"
-                    />
-                </svg>
-            </a>
+        <div id="topBar" class="titlebar">
             <div class="dropdown">
-                <button class="dropbtn">File</button>
+                <button class="dropbtn"><u>F</u>ile</button>
                 <div class="dropdown-content">
-                    <a href="javascript:open()">Open</a>
-                    <a href="javascript:save()">Save</a>
-                    <a href="javascript:saveAs()">Save As</a>
-                    <a href="javascript:close()">Close</a>
-                    <a href="javascript:toggleAutoSave()">Toggle Auto Save</a>
-                </div>
-                <div class="dropdown">
-                    <button class="dropbtn">Edit</button>
-                    <div class="dropdown-content">
-                        <a href="javascript:undo()">Undo</a>
-                        <a href="javascript:redo()">Redo</a>
-                        <a href="javascript:cut()">Cut</a>
-                        <a href="javascript:copy()">Copy</a>
-                        <a href="javascript:paste()">Paste</a>
-                        <a href="javascript:format()">Format</a>
-                    </div>
-                </div>
-                <div class="dropdown">
-                    <button class="dropbtn">Run</button>
-                    <div class="dropdown-content">
-                        <a href="javascript:runNormal()">Run Normal</a>
-                        <a href="javascript:runDebug()">Run Debug</a>
-                    </div>
-                </div>
-                <div class="dropdown">
-                    <button class="dropbtn">Help</button>
-                    <div class="dropdown-content">
-                        <a href="javascript:showHelp()">Help</a>
-                        <a href="javascript:showAbout()">About</a>
-                        <a href="javascript:showShortcuts()">Shortcuts</a>
-                    </div>
+                    <a href="javascript:openFile()">Open</a>
+                    <a href="javascript:saveFile()">Save</a>
+                    <a href="javascript:saveFileAs()">Save As</a>
+                    <a href="javascript:quitWindow()">Close</a>
+                    <a href="javascript:toggleAutoSave()">Toggle Auto Save&nbsp;<span id="autoSaveStatus">On</span></a>
                 </div>
             </div>
-        </div>
-        <div class="container content">
-            <div class="editor child">
-                <div class="sidebar">
-                    <div class="lineNumberContainer">
-                        <span class="lineNum">01</span>
-                    </div>
-                </div>
-                <div class="editorContent">
-                    <label for="editorText"></label>
-                    <textarea
-                        title="editorText"
-                        class="editorText"
-                        id="editorText"
-                    ></textarea>
-                </div>
-            </div>
-        </div>
-        <div id="bottomBar" class="bottomBar">
-            <div id="status">
-                <span id="statusText">Ready</span>
-            </div>
-            <div id="cursor">
-                <span id="cursorText">Ln 1, Col 1</span>
-            </div>
-            <div id="autoSave">
-                <span id="autoSaveText">Auto Save: Off</span>
-                <!-- Switch for Autosave -->
-                <label class="switch">
-                    <input type="checkbox" id="autoSaveSwitch" />
-                    <span class="slider round"></span>
-                </label>
         </div>
     </body>
 </html>

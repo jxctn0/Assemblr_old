@@ -18,7 +18,7 @@ var BaseSystem = new System();
 var PC = BaseSystem.registers.PC;
 var MAR = BaseSystem.registers.MAR;
 var MDR = BaseSystem.registers.MDR;
-var IR = BaseSystem.registers.CIR;
+var CIR = BaseSystem.registers.CIR;
 var ACC = BaseSystem.registers.ACC;
 var STK = BaseSystem.registers.STK;
 
@@ -203,12 +203,12 @@ function executeProgram() {
     // Address of the instruction is in the program counter
     instruction_address = PC.getValue();
     // Copy the instruction into the instruction register
-    IR.setValue(memory[instruction_address]);
+    CIR.setValue(memory[instruction_address]);
     // Increment the program counter
     PC.increment();
     // Instruction in instruction register is now the current instruction
     if (VERBOSE) {
-        console.log("FETCH: " + IR.getValue());
+        console.log("FETCH: " + CIR.getValue());
     }
     //! DECODE
     // Instruction in the instruction register is decoded into an opcode
