@@ -1,138 +1,216 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Editor</title>
         <style>
+            /* Apply CSS variables defined in :root */
             :root {
-                --background-colour: #373737;
-                --margin-colour: #808080;
-                --button-colour: #3d3d3d;
-                --button-colour-active: #636363;
-                --titlebar-colour: #4d4d4d;
-                --ui-text-color: #ececec;
+                /* Light Colors */
+                --bar-color-light: #f2f2f2;
+                --secondary-bar-color-light: #f6f8fa;
+                --menu-bar-color-light: var(--bar-color-light);
+                --ui-text-color-primary-light: #3b3d4d;
+                --ui-text-color-secondary-light: #959da5;
+                --border-color-light: var(--ui-text-color-secondary-light);
+
+                /* Dark Colors */
+                --bar-color-dark: #010409;
+                --secondary-bar-color-dark: #f5f7fa;
+                --menu-bar-color-dark: var(--bar-color-dark);
+                --ui-text-color-primary-dark: #ffffff;
+                --ui-text-color-secondary-dark: #7d8590;
+                --border-color-dark: var(--ui-text-color-secondary-dark);
             }
-            * {
-                font-family: "Consolas", Courier, monospace;
-                font-size: 16px;
-                background-color: var(--background-colour);
+
+            /* Default to dark mode */
+            .topnav {
+                --bar-color: var(--bar-color-dark);
+                --secondary-bar-color: var(--secondary-bar-color-dark);
+                --menu-bar-color: var(--menu-bar-color-dark);
+                --ui-text-color-primary: var(--ui-text-color-primary-dark);
+                --ui-text-color-secondary: var(--ui-text-color-secondary-dark);
+                --border-color: var(--border-color-dark);
             }
-            /* Style The Dropdown Button */
-            .dropbtn {
-                background-color: var(--button-colour);
+
+            /* Light Mode if someone so chooses */
+            .light-mode {
+                --bar-color: var(--bar-color-light);
+                --secondary-bar-color: var(--secondary-bar-color-light);
+                --menu-bar-color: var(--menu-bar-color-light);
+                --ui-text-color-primary: var(--ui-text-color-primary-light);
+                --ui-text-color-secondary: var(--ui-text-color-secondary-light);
+                --border-color: var(--border-color-light);
+            }
+
+            body {
+                background-color: #313131;
+            }
+
+            /* Style the navigation bar */
+            .topnav {
+                overflow: hidden;
+                background-color: var(--menu-bar-color);
+            }
+
+            .topnav a {
+                float: left;
+                display: block;
+                color: var(--ui-text-color-primary);
+                text-align: center;
+                padding: 14px 16px;
+                text-decoration: none;
+            }
+
+            .topnav a:hover {
+                background-color: var(--secondary-bar-color);
+                color: var(--ui-text-color-primary);
+            }
+
+            .active {
+                background-color: var(--bar-color);
                 color: white;
-                padding: 5px 10px;
-                border: none;
-                cursor: pointer;
-                border-radius: 5px;
             }
 
-            /* The container <div> - needed to position the dropdown content */
+            /* Dropdown button */
             .dropdown {
-                position: relative;
-                display: inline-block;
-                font-weight: bold;
+                float: left;
+                overflow: hidden;
             }
 
-            /* Dropdown Content (Hidden by Default) */
+            .dropdown .dropbtn {
+                font-size: 17px;
+                border: none;
+                outline: none;
+                color: var(--ui-text-color-primary);
+                padding: 14px 16px;
+                background-color: inherit;
+                font-family: inherit;
+                margin: 0;
+            }
+
+            /* Dropdown content */
             .dropdown-content {
                 display: none;
                 position: absolute;
-                background-color: #f9f9f9;
-                min-width: 200px;
-                z-index: 2;
-                border-radius: 10px;
+                background-color: var(--secondary-bar-color);
+                min-width: 160px;
+                box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                z-index: 1;
             }
 
-            /* Links inside the dropdown */
             .dropdown-content a {
-                color: var(--ui-text-color);
-                padding: 5px 10px;
+                float: none;
+                color: var(--ui-text-color-primary);
+                padding: 12px 16px;
                 text-decoration: none;
                 display: block;
+                text-align: left;
             }
 
-            /* Change color of dropdown links on hover */
             .dropdown-content a:hover {
-                background-color: #f1f1f1;
-                border-radius: 10px;
+                background-color: var(--bar-color);
+                color: white;
             }
 
-            /* Show the dropdown menu on hover */
             .dropdown:hover .dropdown-content {
                 display: block;
             }
 
-            /* Show the dropdown menu when clicked */
-            .dropdown:active .dropdown-content {
-                display: block;
-            }
-
-            /* Change the background color of the dropdown button when the dropdown content is shown */
             .dropdown:hover .dropbtn {
-                background-color: var(--button-colour-active);
-            }
-
-            .titlebar {
-                background-color: var(--background-colour);
-                /* padding: 5px 10px; */
-                cursor: pointer;
-                border-radius: 5px;
-                width: 100vm;
-                margin: 0px;
-                overflow: hidden;
-                display: block;
-            }
-
-            u {
-                /* inherit all styles */
-                background-color: transparent;
+                background-color: var(--bar-color);
             }
         </style>
     </head>
-    <body>
-        <div id="topBar" class="titlebar" width="100%">
-            <div id="file" class="dropdown">
-                <button class="dropbtn"><u>F</u>ile</button>
+    <body class="topnav dark-mode">
+        <div class="topnav">
+            <a class="active" href="#home">Home</a>
+            <div class="dropdown">
+                <button class="dropbtn">File: Alt + F</button>
                 <div class="dropdown-content">
-                    <a href="javascript:openFile()">Open</a>
-                    <a href="javascript:saveFile()">Save</a>
-                    <a href="javascript:saveFileAs()">Save As</a>
-                    <a href="javascript:quitWindow()">Close</a>
-                    <a href="javascript:toggleAutoSave()"
-                        >Toggle Auto Save&nbsp;<span id="autoSaveStatus"
-                            >On</span
-                        ></a
-                    >
+                    <a href="#">Save | Ctrl + S</a>
+                    <a href="#">Save As | Ctrl + Shift + S</a>
+                    <a href="#">Open | Ctrl + O</a>
+                    <a href="#">New | Ctrl + N</a>
+                    <a href="#">Close | Ctrl + W</a>
+                    <a href="#">Exit | Ctrl + Q</a>
                 </div>
             </div>
-            <div id="edit" class="dropdown">
-                <button class="dropbtn"><u>E</u>dit</button>
+            <div class="dropdown">
+                <button class="dropbtn">Edit: Alt + E</button>
                 <div class="dropdown-content">
-                    <a href="javascript:undo()">Undo</a>
-                    <a href="javascript:redo()">Redo</a>
-                    <a href="javascript:cut()">Cut</a>
-                    <a href="javascript:copy()">Copy</a>
-                    <a href="javascript:paste()">Paste</a>
-                    <a href="javascript:format()">Format</a>
+                    <a href="#">Undo | Ctrl + Z</a>
+                    <a href="#">Redo | Ctrl + Shift + Z</a>
+                    <a href="#">Cut | Ctrl + X</a>
+                    <a href="#">Copy | Ctrl + C</a>
+                    <a href="#">Paste | Ctrl + V</a>
+                    <a href="#">Select All | Ctrl + A</a>
+                    <a href="#">Find | Ctrl + F</a>
+                    <a href="#">Find and Replace | Ctrl + H</a>
+                    <a href="#">Preferences | Ctrl + P</a>
                 </div>
             </div>
-            <div id="run" class="dropdown">
-                <button class="dropbtn"><u>R</u>un</button>
+            <div class="dropdown">
+                <button class="dropbtn">View: Alt + V</button>
                 <div class="dropdown-content">
-                    <a href="javascript:runNormal()">Run Normal</a>
-                    <a href="javascript:runDebug()">Run Debug</a>
+                    <a href="#">Toggle Dark Mode | Ctrl + Shift + D</a>
+                    <a href="#">Toggle Fullscreen | F11</a>
+                    <a href="#">Editor View | Ctrl + Shift + E</a>
+                    <a href="#">Register View | Ctrl + Shift + R</a>
                 </div>
             </div>
-            <div id="help" class="dropdown">
-                <button class="dropbtn"><u>H</u>elp</button>
+            <div class="dropdown">
+                <button class="dropbtn">Run: Alt + R</button>
                 <div class="dropdown-content">
-                    <a href="javascript:showHelp()">Help</a>
-                    <a href="javascript:showAbout()">About</a>
-                    <a href="javascript:showShortcuts()">Shortcuts</a>
+                    <a href="#">Run | Ctrl + R</a>
+                    <a href="#">Run Debug | Ctrl + Alt + R</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="dropbtn">Help: Alt + H</button>
+                <div class="dropdown-content">
+                    <a href="#">About | Ctrl + I</a>
+                    <a href="#">Documentation | Ctrl + Shift + I</a>
                 </div>
             </div>
         </div>
+
+        <script>
+            // JavaScript can be added here for interactivity if needed
+        </script>
     </body>
 </html>
+
+<!-- 
+File: Alt + F
+- Save | Ctrl + S
+- Save As | Ctrl + Shift + S
+- Open | Ctrl + O
+- New | Ctrl + N
+- Close | Ctrl + W
+- Exit | Ctrl + Q
+
+Edit: Alt + E
+- Undo | Ctrl + Z
+- Redo | Ctrl + Shift + Z
+- Cut | Ctrl + X
+- Copy | Ctrl + C
+- Paste | Ctrl + V
+- Select All | Ctrl + A
+- Find | Ctrl + F
+- Find and Replace | Ctrl + H
+- Preferences | Ctrl + P
+
+View: Alt + V
+- Toggle Dark Mode | Ctrl + Shift + D
+- Toggle Fullscreen | F11
+- Editor View | Ctrl + Shift + E
+- Register View | Ctrl + Shift + R
+
+Run: Alt + R
+- Run | Ctrl + R
+- Run Debug | Ctrl + Alt + R
+
+Help: Alt + H
+- About | Ctrl + I
+- Documentation | Ctrl + Shift + I
+
+ -->

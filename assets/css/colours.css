@@ -18,7 +18,7 @@
 }
 
 /* Default to dark mode */
-* {
+.dark-mode {
     --bar-color: var(--bar-color-dark);
     --secondary-bar-color: var(--secondary-bar-color-dark);
     --menu-bar-color: var(--menu-bar-color-dark);
@@ -29,7 +29,7 @@
 
 
 /* Light Mode if someone so chooses */
-*.light-mode {
+.light-mode {
     --bar-color: var(--bar-color-light);
     --secondary-bar-color: var(--secondary-bar-color-light);
     --menu-bar-color: var(--menu-bar-color-light);

@@ -98,3 +98,18 @@ ApplicationMenu = {
         },
     },
 };
+
+// When the user clicks the toggle, switch the theme from light to dark and vice versa
+document.getElementById("themeToggle").addEventListener("click", function () {
+    if (theme === "light") {
+        document.getElementById("body").classList.remove("light-mode");
+        document.getElementById("body").classList.add("dark-mode");
+        document.getElementById("themeToggle").classList.remove("toggle-light-mode");
+        document.getElementById("themeToggle").classList.add("toggle-dark-mode");
+    } else {
+        document.getElementById("body").classList.remove("dark-mode");
+        document.getElementById("body").classList.add("light-mode");
+        document.getElementById("themeToggle").classList.remove("toggle-dark-mode");
+        document.getElementById("themeToggle").classList.add("toggle-light-mode");
+    }
+});
