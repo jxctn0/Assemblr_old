@@ -1,5 +1,4 @@
-LDA           value
 ADD 10 ; comment
-XOR 10
+BXR 7
 OUT ; comment
 HLT

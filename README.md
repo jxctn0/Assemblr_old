@@ -46,22 +46,23 @@ The Assemblr Emulator project involves several challenging aspects, including:
 *_Read Only Memory_*
 <br><br>
 ## Instruction Set
-| Number |      |   | Opcode | Instruction            | Syntax                                           | Description                                             |
-|--------|------|---|--------|------------------------|--------------------------------------------------|---------------------------------------------------------|
-| 0      | `0000` | 0 | `HLT`    | Halt                   | `HLT`                                              | Stops the execution of the program                      |
-| 1      | `0001` | 1 | `STA`    | Store                  | `STA <location>`                                   | Stores the value in the accumulator into memory         |
-| 2      | `0010` | 2 | `LDA`    | Load                   | `LDA <location>`                                   | Loads a value from memory into the accumulator          |
-| 3      | `0011` | 3 | `SEG`    | Set Group              | `SEG <group name>` <location start>` <location end>` | Sets a group of memory locations                        |
-| 4      | `0100` | 4 | `APG`    | Append to Group        | `APG <group name>` <int>`                           | Appends a value to a group of memory locations           |
-| 5      | `0101` | 5 | `RMG`    | Remove from Group      | `RMG <group name>` <int>`                           | Removes a value from a group of memory locations         |
-| 6      | `0110` | 6 | `SGR`    | Shift Group Right      | `SHG <group name>`                                 | Shifts a group of memory locations to the right          |
-| 7      | `0111` | 7 | `SGL`    | Shift Group Left       | `SGL <group name>`                                 | Shifts a group of memory locations to the left           |
-| 8      | `1000` | 8 | `DLG`    | Delete Group           | `DLG <group name>`                                 | Deletes a group of memory locations                      |
-| 9      | `1001` | 9 | `ADD`    | Add                    | `ADD <int>`                                        | Adds the value in the accumulator to another value      |
-| 10     | `1010` | A | `SUB`    | Subtract               | `SUB <int>`                                        | Subtracts a value from the accumulator                  |
-| 11     | `1011` | B | `JMP`    | Jump always            | `JMP <addr>`                                       | Jumps unconditionally to a specified memory address     |
-| 12     | `1100` | C | `JEZ`    | Jump if Equal to `0`     | `JEZ <addr>`                                       | Jumps to a specified memory address if accumulator is `0` |
-| 13     | `1101` | D | `JGZ`    | Jump if Greater than `0` | `JGZ <addr>`                                       | Jumps to a specified memory address if accumulator >` `0`  |
-| 14     | `1110` | E | `JLZ`    | Jump is Less than `0`    | `JLZ <addr>`                                       | Jumps to a specified memory address if accumulator < `0`  |
-| 15     | `1111` | F | `SIG`    | Send Signal            | `SIG <signal> <x> <y>` <port>`                              | Sends a signal to a port                                |
 
+Opcode | Instruction | Parameters | Description
+------------|------------|------------|------------
+`0000` | `HLT` | `-` | Halts all operations, resets system
+`0001` | `SAV` | `-` | Saves the value in the accumulator to RAM
+`0010` | `LDA` | `Address` | Loads the value from RAM[Address] into the accumulator
+`0011` | `ADD` | `Value` | Adds the value to the accumulator
+`0100` | `SUB` | `Value` | Subtracts the value from the accumulator
+`0101` | `JMP` | `Label` | Jump Always to the specified label 
+`0110` | `JEZ` | `Label` | Jump to the specified label if the accumulator is equal to zero
+`0111` | `JGZ` | `Label` | Jump to the specified label if the accumulator is greater than zero
+`1000` | `JLZ` | `Label` | Jump to the specified label if the accumulator is less than zero
+`1001` | `INP` | `Pin` | Input a value from the specified pin (ONLY FOR RASPBERRY PI/MICR0PYTHON)/ Console
+`1010` | `OUT` | `-` | Output the value in the accumulator to the console
+`1011` | `SIG` | `Pin, Value` | Send a signal to the specified pin (ONLY FOR RASPBERRY PI/MICR0PYTHON)
+`1100` | `BAD` | `Value` | Bitwise AND the value with the accumulator
+`1101` | `BOR` | `Value` | Bitwise OR the value with the accumulator
+`1110` | `BXR` | `Value` | Bitwise XOR the value with the accumulator
+`1111` | `BNT` | `-` | Bitwise NOT the accumulator
+`0000` | `DLY` | `Cycles` | Delay for a specified number of cycles
