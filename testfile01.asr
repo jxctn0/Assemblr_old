@@ -1,4 +1,17 @@
-ADD 10 ; comment
-BXR 7
-OUT ; comment
+; Without Jumps
+ADD 3 ; Add 3 to the accumulator
+SUB 2 ; Subtract 2 from the accumulator
+SAV 4 ; Save the accumulator to RAM[4]
+OUT
+SIG 1 ; Send a signal to pin 1
+BAD 23 ; Bitwise AND the accumulator with 23
+OUT
+BOR 38 ; Bitwise OR the accumulator with 38
+OUT
+BXR 12 ; Bitwise XOR the accumulator with 12
+OUT
+BNT ; Bitwise NOT the accumulator
+OUT
+LDA 4 ; Load RAM[4] into the accumulator
+OUT
 HLT
