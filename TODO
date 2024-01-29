@@ -1,0 +1,8 @@
+TODO
+
+- jump functionality
+  - create memory
+  - load memory
+  - if line starts with :, then is jump start
+- add more tests
+- add more documentation
