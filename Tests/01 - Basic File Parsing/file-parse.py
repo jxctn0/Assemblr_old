@@ -1,13 +1,14 @@
 #!/bin/env python3
 
 import re
+import sys, argparse
 import time
 
 # GLOBALS
 # global ACCUMULATOR
 ACCUMULATOR = 0
 RAM_SIZE = 1024
-RAM = [[""] * RAM_SIZE]
+RAM = [""] * RAM_SIZE
 USED_RAM = 0
 
 verbose = True
@@ -31,9 +32,9 @@ def execute(line):
     global ACCUMULATOR
 
     opcode = line[0]
-    print("o", opcode)
+    #print("o", opcode)
     params = line[1:]
-    print("p", params)
+    #print("p", params)
 
     if opcode == "HLT":
         # Code to execute if the opcode is "HLT"
@@ -76,14 +77,17 @@ def execute(line):
     elif opcode == "JEZ":
         # Code to execute if the opcode is "JEZ"
         print("Jump if equal to zero")
+        print("INSTRUCTION NOT WORKING")
 
     elif opcode == "JGZ":
         # Code to execute if the opcode is "JGZ"
         print("Jump if greater than zero")
+        print("INSTRUCTION NOT WORKING")
 
     elif opcode == "JLZ":
         # Code to execute if the opcode is "JLZ"
         print("Jump if less than zero")
+        print("INSTRUCTION NOT WORKING")
 
     elif opcode == "INP":
         # Code to execute if the opcode is "INP"
@@ -101,8 +105,8 @@ def execute(line):
         # Code to execute if the opcode is "SIG"
         print("Send signal")
         # Send signal to specified pin (ONLY FOR RASPBERRY PI/MICR0PYTHON)
-        # GPIO.output(int(params[0]), int(params[1]))
-        print("Pin " + params[0] + " set to " + ACCUMULATOR)
+        # GPIO.output(int(params[0]), ACCUMULATOR)
+        print(f"Pin {params[0]} set to {ACCUMULATOR}")
 
     elif opcode == "BAD":
         # Code to execute if the opcode is "BAD"
@@ -161,9 +165,12 @@ DLY         | Cycles     | Delay for a specified number of cycles
 """
 
 
-def main():
-    filename = "testfile01.asr"
-    verbose = True
+def main(args):
+    arguments = argparse.ArgumentParser()
+    arguments.add_argument("filename", help="File to run")
+    arguments.add_argument("-v", "--verbose", help="Verbose mode", action="store_true")
+    filename = arguments.parse_args().filename
+    verbose = arguments.parse_args().verbose
 
     with open(filename) as program_file:
         for line in program_file:
@@ -181,4 +188,8 @@ def main():
 
 """ MAIN LOOP """
 if __name__ == "__main__":
-    main()
+    args = sys.argv[1:]
+    if len(args) == 0:
+        print("Please specify a file to run")
+        quit()
+    main(args)
