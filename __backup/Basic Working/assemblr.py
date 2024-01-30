@@ -2,18 +2,14 @@
 
 import re
 import time
+import os
 
 # GLOBALS
 # global ACCUMULATOR
 ACCUMULATOR = 0
 RAM_SIZE = 1024
-RAM = [""] * RAM_SIZE
-USED_RAM = 0
-
-verbose = True
-
-print(RAM)
-
+global VERBOSE
+VERBOSE = False
 
 # Convert each line into an array
 def tokenise(line):
@@ -24,11 +20,6 @@ def tokenise(line):
     line = line.split(";")[0].strip()
     tokens = re.split(r"\s+", line)  #
     return tokens
-
-
-# 'run' file
-
-
 
 """
 Instruction | Parameters | Description
@@ -61,6 +52,8 @@ Memory Map:
     Stack (16 levels): 512-527 -- 16 Bytes
     Runtime: 528-1023 -- 496 Bytes
 """
+           
+    
 
 class Processor:
     def __init__(self, quirks=[]):
@@ -79,7 +72,7 @@ class Processor:
 
     def execute(self):
         # For each instruction in the program
-        for instruction in self.program:
+        for instruction in self.Memory.Program:
             # get instruction from RAM slot
             instruction = self.RAM.get_instruction(instruction)
             # execute instruction
@@ -91,6 +84,7 @@ class Processor:
     def get_address_from_label(self, label):
         # get address from label
         labels = self.RAM.get_labels()
+        return labels[label]
 
     def execute_instruction(self, line):
         opcode = line[0]
@@ -128,7 +122,7 @@ class Processor:
             # Code to execute if the opcode is "LDA"
             print("Load value")
             # load value from RAM slot
-            ACCUMULATOR = RAM[int(params[0])]
+            ACCUMULATOR = self.RAM[int(params[0])]
 
         elif opcode == "ADD":
             if params == []:
@@ -167,13 +161,7 @@ class Processor:
             if ACCUMULATOR == 0:
                 # Jump to label
                 label = params[0]
-                # Find label in program
-                for line in range(len(program)):
-                    if program[line][0] == label:
-                        # Jump to line
-                        program[line -1]
-                        break
-                pass
+                self.PROGRAM_COUNTER = Memory.get_address_from_label(label)
 
         elif opcode == "JGZ":
             # Code to execute if the opcode is "JGZ"
@@ -181,12 +169,7 @@ class Processor:
             if ACCUMULATOR > 0:
                 # Jump to label
                 label = params[0]
-                # Find label in program
-                for line in range(len(program)):
-                    if program[line][0] == label:
-                        # Jump to line
-                        program[line -1]
-                        break
+                self.PROGRAM_COUNTER = Memory.get_address_from_label(label)
                 pass
 
 
@@ -322,21 +305,23 @@ class Memory(Processor):
             lines = file.readlines()
 
         for line in range(len(lines)):
-            print(line)
-            if line[0] == ";":
-                if verbose:
-                    print("Comment", line)
+            if VERBOSE:
+                print(line)
+            if lines[line][0] == ";":
+                if VERBOSE:
+                    print("Comment", lines[line])
                 continue
-            elif line[0] == "\n":
+            elif lines[line][0] == "\n":
                 continue
-            if line[0] == ":":
+            if lines[line][0] == ":":
                 # Create label
-                label = line[1:].strip()
+                label = lines[line][1:].strip()
                 address = line + 2 # +2 because RAM starts at 0 and next line is the instruction to be executed
                 self.create_label(label, )
                 continue
-            this_line = tokenise(line)
-            print(this_line)
+            this_line = tokenise(lines[line])
+            if VERBOSE:
+                print(this_line)
             instruction = this_line[0]
             params = this_line[1:]
             # save params to next available RAM slot in Program Data Namespace
@@ -349,14 +334,132 @@ class Memory(Processor):
 
     def get_address_from_label(self, label):
         return self.labels[label]
-      
 
+
+class Program(Memory):
+    def __init__(self):
+        self.program = {}
+        self.instructions = []
+        self.data = []
+        self.labels = {}
+
+    def load(self, filename):
+        with open(filename, "r") as file:
+            lines = file.readlines()
+
+        # Create a program dictionary in the following format:
+        """ 
+        {
+            "line{num}": {
+                "type": "instruction|data|label",
+                "instruction": {
+                    "name": "name",
+                    "parameters": ["param1", "param2", "param3"],
+                }
+                OR
+                "data": {
+                    "name": "name",
+                    "address": "address"
+                }
+                OR
+                "label": {
+                    "name": "name",
+                    "address": "address"
+                },
+            }
+        }
+
+        """
+        for line in range(len(lines)):
+            if lines[line][0] == ";": # Ignore comments
+                if VERBOSE:
+                    print("Comment", lines[line]) # Print comment if VERBOSE
+                continue
+            elif lines[line][0] == "\n": # Ignore blank lines
+                continue
+            elif lines[line][0] == ":": # If line is a label
+                # Create label
+                label = lines[line].split(":")[1].strip()
+                address = line + 1 # Next line is the instruction to be 
+                # Create label object
+                label = {
+                    "name": label,
+                    "address": address
+                }
+                # Add label object to program dictionary
+                self.program[f"line{line}"] = {
+                    "type": "label",
+                    "label": label
+                }
+                continue
+            elif lines[line][0] == "$": # If line is a data declaration
+                # Create data object
+                data = lines[line].split("$")[1].strip()
+                # Create data object
+                data = {
+                    "name": data,
+                    "address": address
+                }
+                # Add data object to program dictionary
+                self.program[f"line{line}"] = {
+                    "type": "data",
+                    "data": data
+                }
+                continue
+            else: # If line is an instruction
+                # tokenise line
+                instruction = tokenise(lines[line])
+                # create instruction object
+                instruction = {
+                    "name": instruction[0],
+                    "parameters": instruction[1:]
+                }
+                # Add instruction object to program dictionary
+                self.program[f"line{line}"] = {
+                    "type": "instruction",
+                    "instruction": instruction
+                }
+                continue
+
+    
+    def get_instruction(self, line):
+        # get instruction from program dictionary
+        instruction = self.program[line]["instruction"]
+        # return instruction
+        return instruction
+    
+    def get_label(self, id):
+        # get labels from program dictionary
+        labels = self.labels
+
+        # get the address of the label
+        address = labels[id]
+
+        # return address
+        return address
+    
+    def get_data(self, id):
+        # get data from program dictionary
+        data = self.data[id]
+
+        # return data
+        return data
+
+
+def getFile():
+    filename = "testfile01.asr"
+    # will be the code to retrieve the file from the gui
+    return filename
 
 def main():
-    filename = "testfile01.asr"
-    verbose = True
+    filename = getFile()
+    VERBOSE = True
+    assemblr = Processor()
+    assemblr.RAM.load(filename)
+    assemblr.execute()
 
 
 """ MAIN LOOP """
 if __name__ == "__main__":
+    os.system("clear")
     main()
