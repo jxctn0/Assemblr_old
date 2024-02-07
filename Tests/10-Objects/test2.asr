@@ -1,0 +1,6 @@
+INP ; Input a number
+SUB 1
+OUT
+JGZ 1 ; Loop until zero
+OUT -1
+HLT

@@ -1,9 +1,0 @@
-{
-    "RAM_SIZE": 255,
-    "BIT_SIZE": 4,
-    "CLOCK_SPEED": 1,
-    "directories":{
-        "root": ["USERHOME","Assemblr"],
-        "ROM": ["USERHOME","Assemblr","ROM"]
-    }
-}
