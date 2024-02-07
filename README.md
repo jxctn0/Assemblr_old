@@ -5,8 +5,8 @@
  / ___ \ ___) |__) | |___| |  | | |_) | |___| |   
 /_/   \_\____/____/|____Assembly Language Emulator
 ```
-<!-- Version display from version.txt -->
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/jxctn0/assemblr_old?label=Latest%20Release&style=for-the-badge)
+<!-- Version display from ./VERSION -->
+[![Version](https://img.shields.io/badge/Version-0.1.1-blue.svg)](
 
 # What is an assembler?
 An assembler is a program that takes in assembly code and converts it to machine code. Assembly code is a human-readable representation of machine code, which is a set of instructions that a computer's CPU can execute. Machine code is a sequence of binary numbers that the CPU can execute directly. An assembler is used to convert assembly code to machine code so that it can be executed by the CPU.
