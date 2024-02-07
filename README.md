@@ -63,6 +63,7 @@ The Assemblr Emulator project involves several challenging aspects, including:
 ## Parts of the "Emulator"
 
 ### RAM
+<<<<<<< HEAD
 
 *_Random Access Memory_*
 
@@ -105,3 +106,55 @@ Based off of the Little Man Computer IS, but has a few extra commands to interfa
 | 2 | `INVALID_ADDRESS` | Invalid address |
 | 3 | `INVALID_VALUE` | Invalid value |
 | 4 | `INVALID_PORT` | Invalid port ID |
+=======
+*_Random Access Memory_*
+- Contains
+### ROM
+*_Read Only Memory_*
+<br><br>
+## Instruction Set
+
+| Opcode | Instruction | Parameters | Description                                                                       |
+| ------ | ----------- | ---------- | --------------------------------------------------------------------------------- |
+| `0000` | `HLT`       | `-`        | Halts all operations, resets system                                               |
+| `0001` | `SAV`       | `Address`  | Saves the value in the accumulator to RAM                                         |
+| `0010` | `LDA`       | `Address`  | Loads the value from RAM[Address] into the accumulator                            |
+| `0011` | `ADD`       | `Value`    | Adds the value to the accumulator                                                 |
+| `0100` | `SUB`       | `Value`    | Subtracts the value from the accumulator                                          |
+| `0101` | `JMP`       | `Label`    | Jump Always to the specified label                                                |
+| `0110` | `JEZ`       | `Label`    | Jump to the specified label if the accumulator is equal to zero                   |
+| `0111` | `JGZ`       | `Label`    | Jump to the specified label if the accumulator is greater than zero               |
+| `1000` | `JLZ`       | `Label`    | Jump to the specified label if the accumulator is less than zero                  |
+| `1001` | `INP`       | `Pin`      | Input a value from the specified pin (ONLY FOR RASPBERRY PI/MICR0PYTHON)/ Console |
+| `1010` | `OUT`       | `-`        | Output the value in the accumulator to the console                                |
+| `1011` | `SIG`       | `Pin`      | Send a signal to the specified pin (ONLY FOR RASPBERRY PI/MICR0PYTHON)            |
+| `1100` | `BAD`       | `Value`    | Bitwise AND the value with the accumulator                                        |
+| `1101` | `BOR`       | `Value`    | Bitwise OR the value with the accumulator                                         |
+| `1110` | `BXR`       | `Value`    | Bitwise XOR the value with the accumulator                                        |
+| `1111` | `BNT`       | `-`        | Bitwise NOT the accumulator                                                       |
+| `0000` | `DLY`       | `Cycles`   | Delay for a specified number of cycles                                            |
+
+<br><br>
+
+#### Test Program
+test program that tests all the instructions
+```assembler
+; Without Jumps
+ADD 3 ; Add 3 to the accumulator
+SUB 2 ; Subtract 2 from the accumulator
+SAV 4 ; Save the accumulator to RAM[4]
+OUT
+SIG 1 ; Send a signal to pin 1
+BAD 23 ; Bitwise AND the accumulator with 23
+OUT
+BOR 38 ; Bitwise OR the accumulator with 38
+OUT
+BXR 12 ; Bitwise XOR the accumulator with 12
+OUT
+BNT ; Bitwise NOT the accumulator
+OUT
+LDA 4 ; Load RAM[4] into the accumulator
+OUT
+HLT
+```
+>>>>>>> 726275daead98c15be28176162a2e27f2961a45b

@@ -1,3 +1,14 @@
+<<<<<<< HEAD
 - Complete Functions
 - GUI for display
 - TUI for RAM, Stack & CPU
+=======
+TODO
+
+- jump functionality
+  - create memory
+  - load memory
+  - if line starts with :, then is jump start
+- add more tests
+- add more documentation
+>>>>>>> 726275daead98c15be28176162a2e27f2961a45b
