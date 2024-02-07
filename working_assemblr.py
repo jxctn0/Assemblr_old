@@ -1,7 +1,9 @@
 import os
 import time, math
 
+global verbose 
 verbose = "ei"
+global program_path
 
 colors = {
     "foreground": {
@@ -55,16 +57,18 @@ Traced Line:
 """
 
 
-def error(message, lineNum, line):
+def error(message, lineNum, line, file=""):
     if "e" in verbose:
         print(
             f"""
 {COLORS['ERROR']}[ERROR]{COLORS['RESET']}
 Traced Line: 
      |- {message}
-> {lineNum.zfill(2)} | {line}
+> {str(lineNum).zfill(2)} | {line}
        {colors['foreground']["red"]}^^^
-{colors['formatting']["reset"]}"""
+{colors['formatting']["reset"]}
+    in file: {file}
+"""
         )
     else:
         pass
@@ -362,22 +366,22 @@ def checkErrors(line, lineNum):
     operand = line.split(" ")[1] if len(line.split(" ")) > 1 else 0
     # Check for errors:
     if not opcode in opcodes:  # Invalid Opcode
-        raise Exception(error(f"Unknown opcode '{opcode}'", lineNum, line))
+        raise Exception(error(f"Unknown opcode '{opcode}'", lineNum, line, file=program_path))
 
     # Check if the operand is a number in range
     if int(operand) > 0:
         if not operand.isdigit():
             raise Exception(
-                error(f"Operand '{operand}' is not a number", lineNum, line)
+                error(f"Operand '{operand}' is not a number", lineNum, line, file=program_path)
             )
         if int(operand) > 0xFFFF:
             raise Exception(
-                error(f"Operand '{operand}' is out of range", lineNum, line)
+                error(f"Operand '{operand}' is out of range", lineNum, line, file=program_path)
             )
 
     if len(line.split(" ")) > 2:
         raise Exception(
-            f"[Line {lineNum}]\n | Error: \n\t|- Too many operands in '{line}'"
+            f"[Line {lineNum}]\n | Error: \n\t|- Too many operands in '{line}'", file=program_path
         )
 
     if len(line.split(" ")) < 2 and line.split(" ")[0] not in [
@@ -404,6 +408,7 @@ def decodeOperand(operand):
         
 
 def getProgram():
+    global program_path
     # open program file:
     program_path = os.path.join(os.path.dirname(__file__), "test2.asr")
     with open(program_path, "r") as file:
