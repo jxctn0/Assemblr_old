@@ -410,7 +410,7 @@ def decodeOperand(operand):
 def getProgram():
     global program_path
     # open program file:
-    program_path = os.path.join(os.path.dirname(__file__), "test2.asr")
+    program_path = os.path.join(os.path.dirname(__file__), "test.asr")
     with open(program_path, "r") as file:
         program = file.read().split("\n")
 
@@ -482,3 +482,71 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+"""
+    _    ____ ____  _____ __  __ ____  _          
+   / \  / ___/ ___|| ____|  \/  | __ )| |    _ __ 
+  / _ \ \___ \___ \|  _| | |\/| |  _ \| |   | '__|
+ / ___ \ ___) |__) | |___| |  | | |_) | |___| |   
+/_/   \_\____/____/|____Assembly Language Emulator
+
+# What is an assembler?
+An assembler is a program that takes in assembly code and converts it to machine code. Assembly code is a human-readable representation of machine code, which is a set of instructions that a computer's CPU can execute. Machine code is a sequence of binary numbers that the CPU can execute directly. An assembler is used to convert assembly code to machine code so that it can be executed by the CPU.
+
+# How does mine work?
+My assembler works by taking in a file of assembly code and converting it to machine code. It does this by reading the file line by line and converting each line to machine code. It then loads the machine code into memory and runs it using a CPU emulator.
+
+# How to use it?
+To use my assembler, create a file with assembly code and save it with a .asr extension. Then run the working_assemblr.py file and it will convert the assembly code to machine code and run it using the CPU emulator.
+
+# How to Write Assembly Code?
+Assembly code is made up of instructions and operands. An instruction is a command that tells the CPU what to do, and an operand is a value that the instruction operates on. For example, the ADD instruction adds the value of the operand to the accumulator, which is a special register in the CPU.
+
+Here is the instruction set for my assembler:
+| Instruction | Opcode | Description |
+| ----------- | ------ | ----------- |
+| HLT         | 0x00   | Halt the program |
+| SAV         | 0x01   | Save the value in the accumulator to RAM[Address] |
+| LDA         | 0x02   | Load the value from RAM[Address] into the accumulator |
+| ADD         | 0x03   | Add the value to the accumulator |
+| SUB         | 0x04   | Subtract the value from the accumulator |
+| OUT         | 0x05   | Output the value in the accumulator to the console |
+| INP         | 0x06   | Input a value from the console |
+| BAD         | 0x07   | Bitwise AND the value with the accumulator |
+| BOR         | 0x08   | Bitwise OR the value with the accumulator |
+| BXR         | 0x09   | Bitwise XOR the value with the accumulator |
+| BNT         | 0x0A   | Bitwise NOT the accumulator |
+| JMP         | 0x0B   | Jump Always to the specified label |
+| JEZ         | 0x0C   | Jump to the specified label if the accumulator is equal to zero |
+| JGZ         | 0x0D   | Jump to the specified label if the accumulator is greater than zero |
+| JLZ         | 0x0E   | Jump to the specified label if the accumulator is less than zero |
+| SIG         | 0x0F   | Send a signal to the specified pin (ONLY FOR RASPBERRY PI/MICR0PYTHON) |
+
+# Example Assembly Code:
+```assembly
+; Example program to add two numbers from user input and output the result
+INP
+SAV 0xf
+INP
+ADD 0xf
+OUT
+HLT
+```
+
+# Example Output:
+```bash
+$ python working_assemblr.py
+
+Input a value: 5
+Input a value: 7
+Output: 12
+```
+
+# How to Run the Assembler:
+To run the assembler, simply run the working_assemblr.py file and it will convert the assembly code to machine code and run it using the CPU emulator.
+
+```bash
+python working_assemblr.py
+```
+"""
