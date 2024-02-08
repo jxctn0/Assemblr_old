@@ -1,5 +1,5 @@
 INP ; Input a number
-SUB 1
+SUB #1
 OUT
 JGZ 1 ; Loop until zero
 OUT ; Output the zero
