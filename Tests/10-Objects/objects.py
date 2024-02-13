@@ -2,6 +2,7 @@ import os
 import time, math
 
 verbose = ""
+mode = "h" # h for hex, d for decimal, b for binary
 
 colors = {
     "foreground": {
@@ -314,15 +315,37 @@ class Memory:
         self.memory[address] = value
 
     def print(self):
+        # header row:
+        for i in range(0, 0x20):
+            if mode == "h":
+                print(f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{hex(i)[2:].zfill(2)}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}", end="")
+            elif mode == "d":
+                print(f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{i}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}", end="")
+            elif mode == "b":
+                print(f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{bin(i)[2:].zfill(8)}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}", end="")
+                if i > 0x1f:
+                    print()
         # Print the memory in 0x20 byte rows with the address in hexadecimal (0x00 - 0xFF)
         for i in range(0, len(self.memory), 0x20):
+            _line = ""
             # COLORS["RAMBACKGROUND + " " + COLORS["RESET"] + COLORS["RAM_BYTE"] + ADDRESS + COLORS["RESET"]
             for j in range(0x20):
-                print(
-                    f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{self.memory[i+j]:02X}{COLORS['RESET']}",
-                    end="",
-                )
-            print("")
+                address = hex(self.memory[i + j])[2:].zfill(2)
+                if mode == "h":
+                    _line += f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{address}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}"
+                elif mode == "d":
+                    _line += f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{int(address, 16)}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}"
+                elif mode == "b":
+                    _line += f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{bin(int(address, 16))[2:].zfill(8)}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}"
+            if mode == "b":
+                # split the line exactly in half
+                first_half = _line[:len(_line) // 2]
+                second_half = _line[len(_line) // 2:]
+                print(first_half)
+                print(second_half)
+            else:
+                print(_line)
+        
 
 class CPU:
     def __init__(self, memory):
@@ -493,8 +516,37 @@ class CPU:
                 continue_()
         except KeyboardInterrupt:
             error("Keyboard Interrupt", count - 1, f"{opcode} {operand}")
+            print("Program terminated by user")
+            raise KeyboardInterrupt # Raise the KeyboardInterrupt to exit the program
 
+    def print_(self):
+        overscore = "\u203E"
+        underscore = "_"
+        if mode == "h":
+            pc = str(hex(self.pc)).zfill(2)
+            acc = str(hex(self.acc)).zfill(2)
+            mar = str(hex(self.mar)).zfill(2)
+            mdr = str(hex(self.mdr)).zfill(2)
+        elif mode == "d":
+            pc = str(self.pc).zfill(3)
+            acc = str(self.acc).zfill(3)
+            mar = str(self.mar).zfill(3)
+            mdr = str(self.mdr).zfill(3)
+        elif mode == "b":
+            pc = bin(self.pc)[2:].zfill(8)
+            acc = bin(self.acc)[2:].zfill(8)
+            mar = bin(self.mar)[2:].zfill(8)
+            mdr = bin(self.mdr)[2:].zfill(8)
+            
+        print(
+            f"""
+    _{underscore * int(len(pc))}_        _{underscore * len(acc)}_        _{underscore * len(mar)}_        _{underscore * len(mdr)}_
+PC | {pc} |  ACC | {acc} |  MAR | {mar} |  MDR | {mdr} |
+    ‾{overscore * len(pc)}‾        ‾{overscore * len(acc)}‾        ‾{overscore * len(mar)}‾        ‾{overscore * len(mdr)}‾
+            """
+        )
 
+        self.memory.print()
 def main():
     # Example program
     memory = Memory(128)  # Example memory size of 128 bytes
@@ -502,8 +554,9 @@ def main():
     memory.print()
 
     cpu = CPU(memory)
+    cpu.print_()
+    continue_()
     cpu.run()
-
 
 if __name__ == "__main__":
     main()
