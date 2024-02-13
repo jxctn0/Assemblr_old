@@ -1,0 +1,8 @@
+DAT $hello ; Create a variable called hello
+ADD 678
+SAV $hello
+SUB 78
+OUT
+LDA $hello
+OUT
+HLT

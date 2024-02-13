@@ -1,8 +1,8 @@
 import os
 import time, math
 
-verbose = ""
-mode = "h" # h for hex, d for decimal, b for binary
+verbose = "ic"
+mode = "h"  # h for hex, d for decimal, b for binary
 
 colors = {
     "foreground": {
@@ -42,12 +42,12 @@ COLORS = {
     "WARNING": colors["foreground"]["yellow"] + colors["formatting"]["bold"],
     "SUCCESS": colors["foreground"]["green"] + colors["formatting"]["bold"],
     # Black background, yellow text, bold formatting
-    "RAM_BYTE": colors["background"]["black"] + colors["foreground"]["yellow"] + colors["formatting"]["bold"],
+    "RAM_BYTE": colors["background"]["black"]
+    + colors["foreground"]["yellow"]
+    + colors["formatting"]["bold"],
     # Green background
     "RAMBACKGROUND": colors["background"]["green"],
 }
-
-
 
 opcodes = {
     "HLT": {
@@ -151,7 +151,7 @@ opcodes = {
         "decription": "Create a named address",
         "operands": 1,
         "usage": "DAT Label",
-    }
+    },
 }
 
 
@@ -161,19 +161,14 @@ def continue_():
     else:
         pass
 
+
 def error(message, lineNum, line):
-    if "e" in verbose:
-        print(
-            f"""
+    return f"""
 {COLORS['ERROR']}[ERROR]{COLORS['RESET']}
 Traced Line: 
-     |- {message}
-> {lineNum.zfill(2)} | {line}
-       {colors['foreground']["red"]}^^^
-{colors['formatting']["reset"]}"""
-        )
-    else:
-        pass
+      |- {message}
+{colors['foreground']["red"]}=>{colors['formatting']["reset"]} {str(lineNum).zfill(2)} | {line}
+"""
 
 def info(name, message):
     if "i" in verbose:
@@ -186,66 +181,103 @@ def info(name, message):
     else:
         pass
 
+
+def print_instruction(count, instruction):  # ? Helper function to print the instruction
+    print(f"{count} {instruction}")
+
+
 def clear():
     print("\033c", end="")  # Clear the console by printing the escape character
+
 
 class Memory:
     def __init__(self, size):
         self.memory = [0x0] * size  # Create a list of 0s of the specified size
         self.freeMem = 0x0  # The next free memory address
         self.namedAddresses = {}  # Named addresses (e.g. labels)
+        """
+? The namedAddresses dictionary is used to store the addresses of named labels in the program.
+? For example, if the program contains the line "label: DAT", the namedAddresses dictionary will contain the key "label" with the value of the address of the DAT instruction.
+? this functionality can also be used for jump instructions (e.g. JMP label) where the label is the key in the namedAddresses dictionary and the value is the address of the label.
+
+{
+    "num1": 0xf6,
+}
+
+= the value the user stored with the key "num1" is stored at the address 0xf6
+
+LDA num1
+= the value stored at the address 0xf6 is loaded into the accumulator
+
+
+JMP num1
+= the program counter is set to the address 0xf6
+        """
         self.size = size  # The size of the memory
 
     def load_program(self, start_address=0x0):
         program = self.getProgram()
+        info("Program created / got from disk")
+        if verbose:
+            print(program)
+        info("Program syntax checked")
+        self.namedAddresses = self.extract_named_addresses(program)
+        program_range = range(start_address, start_address + len(program))
+        self.memory_map = {"program": program_range, "named_addresses": self.namedAddresses}
+        info(self.memory.memory_map)
         for i, instruction in enumerate(program):
             self.memory[start_address + i] = instruction
+        info("Memory map created:")
+        if verbose:
+            print(self.memory_map)
+        info("Program loaded into RAM:")
         self.freeMem = start_address + len(program)
-        info("Free Memory", self.freeMem)
+
+    def extract_named_addresses(self, program):
+        named_addresses = {}
+        for i, line in enumerate(program):
+            opcode, *operand = line.split(" ")
+            if opcode == "DAT" and operand:
+                if operand[0].startswith("$"):
+                    named_addresses[operand[0][1:]] = i
+        return named_addresses
 
     def validate_instruction(self, line, lineNum):
-        # Split the line into the opcode and operand
         opcode, *operand = line.split(" ")
-        
-        # Check if the opcode is valid
+
         if opcode not in opcodes:
             raise ValueError(error("Unknown opcode", lineNum, line))
-        
-        # Check if the number of operands is valid
+
         if len(operand) != opcodes[opcode]["operands"]:
             raise ValueError(error("Invalid number of operands", lineNum, line))
-        
-        # Check if the operand is valid
+
         if operand:
-            # Check if operand uses direct or immediate addressing
             if operand[0][0] == "#":
                 # Immediate addressing
-                # Save the operand as an integer in ram
-                self.memory[self.freeMem] = int(operand[0][1:])
+                self.memory.write(int(operand[0][1:]), self.freeMem)
                 operand = self.freeMem
-                return opcode, operand # Return the opcode and the address of the operand
-            # Check if the operand is a named address
-            elif operand[0] == "$":
-                # Check if the named address exists
-                if operand[0] not in self.namedAddresses:
-                    raise ValueError(error("Unknown named address", lineNum, line))
-                operand = self.namedAddresses[operand[0]]
-                return opcode, operand # Return the opcode and the address of the operand
+                self.freeMem += 1
+            elif operand[0].startswith("$"):
+                #$ Named address
+                operand = operand[0][1:]  # Remove the "$" prefix
+                #? If the named address is not in the namedAddresses dictionary, create a new entry with the address of the next free memory location
+                if operand not in self.namedAddresses and opcode == "DAT":
+                    self.namedAddresses[operand.replace("$", "")] = self.freeMem #? the key is the name of the address and the value is the address
+                    info("Named Address Created", operand)
+                elif operand not in self.namedAddresses:
+                    raise ValueError(error("Uninitialised named address", lineNum, line))
+                else:
+                    operand = self.namedAddresses[operand]
+                    info("Named Address Loaded", operand)
             else:
-                # Direct addressing
-                # check if the operand is an integer
                 try:
                     operand = int(operand[0])
                 except ValueError:
                     raise ValueError(error("Invalid operand", lineNum, line))
-                
-                # Check if the operand is within the valid range
-                if operand >= self.size or operand < 0:
-                    raise ValueError(error("Invalid operand", lineNum, line))
-                
-                return opcode, operand # Return the opcode and the address of the operand
         else:
-            return opcode, 0
+            operand = 0
+
+        return opcode, operand
 
     def getProgram(self):
         # open program file:
@@ -253,8 +285,7 @@ class Memory:
         with open(program_path, "r") as file:
             program = file.read().split("\n")
 
-        if verbose:
-            info("Raw Program", program)
+        info("Raw Program", program)
 
         # remove comments and empty lines:
         program = [line.split(";")[0] for line in program]
@@ -284,8 +315,20 @@ class Memory:
             machine_operand = (
                 operand if operand == 0 else int(operand)
             )  # If the operand is empty, set it to 0, otherwise convert it to an integer
+            machine_addressing_mode = 0x0 # Set the addressing mode to 0 for now
+            #TODO: Implement addressing modes
+            #? The addressing mode will be stored in the last 4 bits of the machine code instruction
+            #? INstruction stored as:
+            #? f    f    f    f    f    3
+            #? 0000 0000 0000 0000 0000 00
+            #?  ^    ^                  ^
+            #?  |    |                  |
+            #?  |    |                  Addressing mode 0b00 -> Immediate, 0b01 -> Direct, 0b10 -> Indirect, 0b11 -> Relative 
+            #?  |    Operand (16 bits)
+            #?  Opcode (4 bits)
+            #? 
 
-            info("Machine Opcode + Operand", [machine_opcode, machine_operand])
+            info("Machine Opcode + Operand + Addressing Mode", [machine_opcode, machine_operand, machine_addressing_mode])
 
             # Combine the opcode and operand to create a single integer of bit length 8 (4 bits for the opcode and 4 bits for the operand)
             # bitshift the opcode 4 bits to the left and then bitwise OR it with the operand
@@ -315,37 +358,58 @@ class Memory:
         self.memory[address] = value
 
     def print(self):
-        # header row:
-        for i in range(0, 0x20):
+        # ? Calculate the width of each row
+        #! will be either 25% of the width of the console or sqrt of the size of the memory, whichever is the closest to the console width
+        console_width = os.get_terminal_size().columns
+        row_width = math.sqrt(self.size)
+
+        row_width = int(row_width)
+        if row_width < console_width:
+            row_width = int(row_width)
+        else:
+            row_width = int(console_width / 4)
+
+        # ? Print the memory
+        for i, byte in enumerate(self.memory):
+
+            # ^ stop the program from printing the entire memory
+            if i == self.size:
+                break
+
+            mode = "b"
+            # ? convert the byte to the respective base
             if mode == "h":
-                print(f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{hex(i)[2:].zfill(2)}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}", end="")
+                fillLength = 3
+                byte = hex(byte)[2:].zfill(fillLength)
             elif mode == "d":
-                print(f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{i}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}", end="")
+                fillLength = 3
+                byte = int(byte)[2:].zfill(fillLength)
             elif mode == "b":
-                print(f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{bin(i)[2:].zfill(8)}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}", end="")
-                if i > 0x1f:
-                    print()
-        # Print the memory in 0x20 byte rows with the address in hexadecimal (0x00 - 0xFF)
-        for i in range(0, len(self.memory), 0x20):
-            _line = ""
-            # COLORS["RAMBACKGROUND + " " + COLORS["RESET"] + COLORS["RAM_BYTE"] + ADDRESS + COLORS["RESET"]
-            for j in range(0x20):
-                address = hex(self.memory[i + j])[2:].zfill(2)
-                if mode == "h":
-                    _line += f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{address}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}"
-                elif mode == "d":
-                    _line += f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{int(address, 16)}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}"
-                elif mode == "b":
-                    _line += f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{bin(int(address, 16))[2:].zfill(8)}{COLORS['RAMBACKGROUND']} {COLORS['RESET']}"
-            if mode == "b":
-                # split the line exactly in half
-                first_half = _line[:len(_line) // 2]
-                second_half = _line[len(_line) // 2:]
-                print(first_half)
-                print(second_half)
-            else:
-                print(_line)
-        
+                fillLength = 8
+                byte = bin(byte)[2:].zfill(fillLength)
+
+            # ? Print the memory address
+            if i % row_width == 0:
+                if "h" in mode:
+                    addrRow = hex(i)
+
+                elif "d" in mode:
+                    addrRow = int(i)
+
+                elif "b" in mode:
+                    addrRow = bin(i)
+
+                print(
+                    f"\n{COLORS['RESET']}0{mode}{str(addrRow)[2:].zfill(fillLength)}{COLORS['RESET']}",
+                    end=" ",
+                )
+            print(
+                f"{COLORS['RAMBACKGROUND']} {COLORS['RAM_BYTE']}{str(byte).zfill(fillLength)}{COLORS['RAMBACKGROUND']}",
+                end=" ",
+            )
+
+        print()
+
 
 class CPU:
     def __init__(self, memory):
@@ -375,52 +439,64 @@ class CPU:
         )  # Shift the data in the memory data register 4 bits to the right to get the opcode
         operand = self.mdr & 0xF
         return opcode, operand
+    
+    
 
     def execute(self, opcode, operand, instructionNum):
+        # Convert named address to actual memory address
+        if isinstance(operand, str):
+            operand = self.memory.namedAddresses[operand]
+
         if opcode == 0x0:
             # HLT - Halt the program
-            print(f"{instructionNum} | HLT - Halt the program")
+            print_instruction(instructionNum, "HLT - Halt the program")
             return False
-        
+
         elif opcode == 0x1:
             # SAV - Save the value in the accumulator to RAM[Address]
             address = operand[1]
-            print(
-                f"{instructionNum} | SAV - Save the value in the accumulator to RAM[{address}]"
+            print_instruction(
+                instructionNum,
+                f"SAV - Save the value in the accumulator to RAM[{address}]",
             )
             self.memory.write(address, self.acc)
             info("Accumulator", self.acc)
-        
+
         elif opcode == 0x2:
             # LDA - Load the value from RAM[Address] into the accumulator
             address = operand
-            print(
-                f"{instructionNum} | LDA - Load the value from RAM[{address}] into the accumulator"
+            print_instruction(
+                instructionNum,
+                f"LDA - Load the value from RAM[{address}] into the accumulator",
             )
             self.acc = self.memory.read(address)
-        
+
         elif opcode == 0x3:
             # ADD - Add the value to the accumulator
             value = operand
-            print(f"{instructionNum} | ADD - Add {value} to the accumulator")
+            print_instruction(instructionNum, f"Add {value} to the accumulator")
             self.acc += self.memory.read(value)
-        
+
         elif opcode == 0x4:
             # SUB - Subtract the value from the accumulator
             value = operand
-            print(f"{instructionNum} | SUB - Subtract {value} from the accumulator")
+            print_instruction(
+                instructionNum,
+                f"SUB - Subtract {value} from the accumulator",
+            )
             self.acc -= self.memory.read(value)
 
         elif opcode == 0x5:
             # OUT - Output the value in the accumulator to the console
-            print(
-                f"{instructionNum} | OUT - Output the value in the accumulator to the console"
+            print_instruction(
+                instructionNum,
+                "OUT - Output the value in the accumulator to the console",
             )
             print(f"Output: {self.acc}")
 
         elif opcode == 0x6:
             # INP - Input a value from the console
-            print(f"{instructionNum} | INP - Input a value from the console")
+            print_instruction(instructionNum, "INP - Input a value from the console")
             while True:
                 try:
                     self.acc = int(input("Enter a value: "))
@@ -428,55 +504,66 @@ class CPU:
                 except ValueError:
                     print("Invalid input. Please enter a number.")
                     continue
-        
+
         elif opcode == 0x7:
             # BAD - Bitwise AND the value with the accumulator
             value = operand
-            print(f"{instructionNum} | BAD - Bitwise AND {value} with the accumulator")
+            print_instruction(
+                instructionNum, f"BAD - Bitwise AND {value} with the accumulator"
+            )
             self.acc &= self.memory.read(value)
-        
+
         elif opcode == 0x8:
             # BOR - Bitwise OR the value with the accumulator
             value = operand
-            print(f"{instructionNum} | BOR - Bitwise OR {value} with the accumulator")
+            print_instruction(
+                instructionNum, f"BOR - Bitwise OR {value} with the accumulator"
+            )
             self.acc |= self.memory.read(value)
-        
+
         elif opcode == 0x9:
             # BXR - Bitwise XOR the value with the accumulator
             value = operand
-            print(f"{instructionNum} | BXR - Bitwise XOR {value} with the accumulator")
+            print_instruction(
+                instructionNum, f"BXR - Bitwise XOR {value} with the accumulator"
+            )
             self.acc ^= self.memory.read(value)
-        
+
         elif opcode == 0xA:
             # BNT - Bitwise NOT the accumulator
-            print(f"{instructionNum} | BNT - Bitwise NOT the accumulator")
+            print_instruction(instructionNum, "BNT - Bitwise NOT the accumulator")
             self.acc = ~self.acc
-        
+
         elif opcode == 0xB:
             # JMP - Jump Always to the specified label
-            print(f"{instructionNum} | JMP - Jump Always to label {operand}")
+            print_instruction(instructionNum, f"JMP - Jump Always to label {operand}")
             self.pc = operand
-        
+
         elif opcode == 0xC:
             # JEZ - Jump to the specified label if the accumulator is equal to zero
-            print(
-                f"{instructionNum} | JEZ - Jump to label {operand} if the accumulator is equal to zero"
+            print_instruction(
+                instructionNum,
+                f"JEZ - Jump to label {operand} if the accumulator is equal to zero",
             )
+            # convert the operand to an integer if it is a named address
+
             if self.acc == 0:
                 self.pc = operand
-        
+
         elif opcode == 0xD:
             # JGZ - Jump to the specified label if the accumulator is greater than zero
-            print(
-                f"{instructionNum} | JGZ - Jump to label {operand} if the accumulator is greater than zero"
+            print_instruction(
+                instructionNum,
+                f"JGZ - Jump to label {operand} if the accumulator is greater than zero",
             )
             if self.acc > 0:
                 self.pc = operand
-        
+
         elif opcode == 0xE:
             # JLZ - Jump to the specified label if the accumulator is less than zero
-            print(
-                f"{instructionNum} | JLZ - Jump to label {operand} if the accumulator is less than zero"
+            print_instruction(
+                instructionNum,
+                f"JLZ - Jump to label {operand} if the accumulator is less than zero",
             )
             if self.acc < 0:
                 self.pc = operand
@@ -496,28 +583,28 @@ class CPU:
             # Increment the free memory address
             self.freeMem += 1
         else:
-            raise ValueError(error("Unknown opcode", instructionNum, f"{opcode} {operand}"))
+            raise ValueError(
+                error("Unknown opcode", instructionNum, f"{opcode} {operand}")
+            )
 
-        
         return True
 
     def run(self):
         try:
-            count = 0
             while True:
-                info("Program Counter", self.pc)
-                info("Accumulator", self.acc)
+                if self.pc >= len(self.memory.memory):
+                    raise ValueError("Program Counter exceeded memory size")
                 self.fetch()
                 opcode, operand = self.decode()
-                continue_execution = self.execute(opcode, operand, count)
-                count += 1
-                if not continue_execution:
-                    break
-                continue_()
+                if not self.execute(opcode, operand):
+                    break  # HLT encountered, terminate program
+        except Exception as e:
+            error("Error handling execution", self.pc - 1, f"{opcode} {operand}")
+            print(f"Error: {e}")
         except KeyboardInterrupt:
-            error("Keyboard Interrupt", count - 1, f"{opcode} {operand}")
-            print("Program terminated by user")
-            raise KeyboardInterrupt # Raise the KeyboardInterrupt to exit the program
+            print("Program terminated by user.")
+        finally:
+            print("Program terminated.")
 
     def print_(self):
         overscore = "\u203E"
@@ -537,7 +624,7 @@ class CPU:
             acc = bin(self.acc)[2:].zfill(8)
             mar = bin(self.mar)[2:].zfill(8)
             mdr = bin(self.mdr)[2:].zfill(8)
-            
+
         print(
             f"""
     _{underscore * int(len(pc))}_        _{underscore * len(acc)}_        _{underscore * len(mar)}_        _{underscore * len(mdr)}_
@@ -547,16 +634,14 @@ PC | {pc} |  ACC | {acc} |  MAR | {mar} |  MDR | {mdr} |
         )
 
         self.memory.print()
-def main():
-    # Example program
-    memory = Memory(128)  # Example memory size of 128 bytes
-    memory.load_program(0)  # Load the program into memory starting at address 0
-    memory.print()
 
-    cpu = CPU(memory)
-    cpu.print_()
-    continue_()
-    cpu.run()
+
+def main():
+    memory = Memory((2**7))  # Example memory size of 2**7 (128 bytes)
+    memory.load_program(0)  # Load the program into memory starting at address 0
+
+    cpu = CPU(memory) # Create a CPU object with the memory object
+    cpu.run() # Run the program
 
 if __name__ == "__main__":
     main()
