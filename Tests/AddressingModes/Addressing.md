@@ -1,6 +1,22 @@
 ## Addressing Modes
 
 ### Reading Data
+The namedAddresses dictionary is used to store the addresses of named labels in the program.
+For example, if the program contains the line "label: DAT", the namedAddresses dictionary will contain the key "label" with the value of the address of the DAT instruction.
+This functionality can also be used for jump instructions (e.g. JMP label) where the label is the key in the namedAddresses dictionary and the value is the address of the label.
+
+{
+    "num1": 0xf6,
+}
+
+= the value the user stored with the key "num1" is stored at the address 0xf6
+
+LDA num1
+= the value stored at the address 0xf6 is loaded into the accumulator
+
+
+JMP num1
+= the program counter is set to the address 0xf6
 
 #### Direct Addresses
 `LDA  0x0010` - Load the value <u>at</u> address 0x0010 into the accumulator

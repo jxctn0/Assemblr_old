@@ -165,7 +165,7 @@ def continue_():
 def error(message, lineNum, line):
     return f"""
 {COLORS['ERROR']}[ERROR]{COLORS['RESET']}
-Traced Line: 
+There was an error when handling the exception:
       |- {message}
 {colors['foreground']["red"]}=>{colors['formatting']["reset"]} {str(lineNum).zfill(2)} | {line}
 """
@@ -194,160 +194,99 @@ class Memory:
     def __init__(self, size):
         self.memory = [0x0] * size  # Create a list of 0s of the specified size
         self.freeMem = 0x0  # The next free memory address
-        self.namedAddresses = {}  # Named addresses (e.g. labels)
-        """
-? The namedAddresses dictionary is used to store the addresses of named labels in the program.
-? For example, if the program contains the line "label: DAT", the namedAddresses dictionary will contain the key "label" with the value of the address of the DAT instruction.
-? this functionality can also be used for jump instructions (e.g. JMP label) where the label is the key in the namedAddresses dictionary and the value is the address of the label.
-
-{
-    "num1": 0xf6,
-}
-
-= the value the user stored with the key "num1" is stored at the address 0xf6
-
-LDA num1
-= the value stored at the address 0xf6 is loaded into the accumulator
-
-
-JMP num1
-= the program counter is set to the address 0xf6
-        """
         self.size = size  # The size of the memory
+        self.namedAddresses = {}  # A dictionary to store named addresses
 
     def load_program(self, start_address=0x0):
-        program = self.getProgram()
-        info("Program created / got from disk")
-        if verbose:
-            print(program)
-        info("Program syntax checked")
-        self.namedAddresses = self.extract_named_addresses(program)
-        program_range = range(start_address, start_address + len(program))
-        self.memory_map = {"program": program_range, "named_addresses": self.namedAddresses}
-        info(self.memory.memory_map)
-        for i, instruction in enumerate(program):
-            self.memory[start_address + i] = instruction
-        info("Memory map created:")
-        if verbose:
-            print(self.memory_map)
-        info("Program loaded into RAM:")
-        self.freeMem = start_address + len(program)
+        #? Load the program into memory starting at the specified address
+        #? The program is loaded from a file called "test.asr" in the same directory as the script
+        #? The program is loaded line by line and each line is split into the opcode and operand
+        #? The opcode is then converted to its machine code equivalent and the operand is converted to a hexadecimal number
+        #? If the operand is a named address, the address is looked up in the namedAddresses dictionary and used as the operand
+        #? The machine code and operand are then combined to form the instruction and written to memory at the specified address
 
-    def extract_named_addresses(self, program):
-        named_addresses = {}
+        program = open("test.asr", "r").read().split("\n")
+
         for i, line in enumerate(program):
+            #^ Remove Comments and whitespace
+            #? Remove Comment strings
+            line = line.split(";")[0]
+
+            #? Remove leading and trailing whitespace
+            line = line.strip()
+
+            #? Skip empty lines
+            if line == "":
+                continue
+
+            #^ Get the opcode and operand
+            #? Split the line into the opcode and operand
             opcode, *operand = line.split(" ")
-            if opcode == "DAT" and operand:
-                if operand[0].startswith("$"):
-                    named_addresses[operand[0][1:]] = i
-        return named_addresses
 
-    def validate_instruction(self, line, lineNum):
-        opcode, *operand = line.split(" ")
+            if opcode not in opcodes:
+                raise SyntaxError(error("Unknown opcode", i, line))
+            
+            #^ Check if the number of operands is correct
+            if len(operand) != opcodes[opcode]["operands"]:
+                raise SyntaxError(error("Incorrect number of operands", i, line))
+            
+            #^ Check if the opcode is DAT - create a named address
+            if opcode == "DAT":
+                #? Get the name of the address
+                name = operand[0]
+                #? Get the address - will be length of the memory + 1 OR the next free memory address, whichever is lesser
+                address = min(len(self.memory) + 1, self.freeMem)
+                #? Create an indirect reference for the named address
+                opcode = address
+                #? Save the address in the named addresses dictionary
+                self.namedAddresses[name] = address
 
-        if opcode not in opcodes:
-            raise ValueError(error("Unknown opcode", lineNum, line))
-
-        if len(operand) != opcodes[opcode]["operands"]:
-            raise ValueError(error("Invalid number of operands", lineNum, line))
-
-        if operand:
-            if operand[0][0] == "#":
-                # Immediate addressing
-                self.memory.write(int(operand[0][1:]), self.freeMem)
-                operand = self.freeMem
-                self.freeMem += 1
-            elif operand[0].startswith("$"):
-                #$ Named address
-                operand = operand[0][1:]  # Remove the "$" prefix
-                #? If the named address is not in the namedAddresses dictionary, create a new entry with the address of the next free memory location
-                if operand not in self.namedAddresses and opcode == "DAT":
-                    self.namedAddresses[operand.replace("$", "")] = self.freeMem #? the key is the name of the address and the value is the address
-                    info("Named Address Created", operand)
-                elif operand not in self.namedAddresses:
-                    raise ValueError(error("Uninitialised named address", lineNum, line))
-                else:
-                    operand = self.namedAddresses[operand]
-                    info("Named Address Loaded", operand)
-            else:
+            #^ Check the address mode
+            if opcodes[opcode]["operands"] == "@": #= Mode is indirect
+                addr_mode = 0x2
+            elif opcodes[opcode]["operands"] == "#": #= Mode is immediate
+                addr_mode = 0x1
+            else: #= Mode is direct
+                addr_mode = 0x0
+            
+            #^ Check if the operand is a named address
+            if operand: #! if the operand is not empty (so this doesn't apply to instructions like HLT)
                 try:
-                    operand = int(operand[0])
+                    operand = int(operand[0], 16)
+                    #= Operand is a hexadecimal number, continue
                 except ValueError:
-                    raise ValueError(error("Invalid operand", lineNum, line))
-        else:
-            operand = 0
+                    #= Operand is a named address
+                    if operand[0] in self.namedAddresses:
+                        operand = self.namedAddresses[operand[0]] #= Will return the address associated with the named address
+                        addr_mode = 0x2 #? Set the address mode to indirect because the operand is a named address (pointing at a pointer)
+                    else:
+                        raise ValueError(error("Uninitialised Address address", i, line))
+                    
+            #^ Convert the opcode to its machine code equivalent
+            opcode = opcodes[opcode]["machine_num"]
+            info("Opcode", opcode)
+            info("Operand", operand)
 
-        return opcode, operand
+            #^ Combine the opcode and address mode to form the first 6 bits of the instruction
+            instruction = (opcode << 0x2) | addr_mode
+            info("Instruction", instruction)
 
-    def getProgram(self):
-        # open program file:
-        program_path = os.path.join(os.path.dirname(__file__), "test2.asr")
-        with open(program_path, "r") as file:
-            program = file.read().split("\n")
+            #^ Combine the instruction and operand to form the full 8 bit instruction
+            instruction = (instruction << 0x4) | operand
+            info("Instruction", instruction)
 
-        info("Raw Program", program)
+            #^ Write the instruction to memory
+            self.write(instruction, start_address + i)   
 
-        # remove comments and empty lines:
-        program = [line.split(";")[0] for line in program]
-        clear()
-        info("Comments Removed", program)
-
-        program = [line for line in program if line]  # Remove empty lines
-        clear()
-        info("Empty Lines Removed", program)
-
-        # remove whitespace at the start and end of each line:
-        program = [line.strip() for line in program]
-        clear()
-        info("Whitespace Removed", program)
-
-        # convert program to machine code:
-        machine_code = []
-        lineCount = 0
-        for line in program:
-            info(f"Line {lineCount}", line)
-            # Check for syntax errors:
-            opcode, operand = self.validate_instruction(line, lineCount)
-            info("Opcode + Operand", [opcode, operand])
-
-            # Convert the opcode and operand to machine code:
-            machine_opcode = opcodes[opcode]["machine_num"]
-            machine_operand = (
-                operand if operand == 0 else int(operand)
-            )  # If the operand is empty, set it to 0, otherwise convert it to an integer
-            machine_addressing_mode = 0x0 # Set the addressing mode to 0 for now
-            #TODO: Implement addressing modes
-            #? The addressing mode will be stored in the last 4 bits of the machine code instruction
-            #? INstruction stored as:
-            #? f    f    f    f    f    3
-            #? 0000 0000 0000 0000 0000 00
-            #?  ^    ^                  ^
-            #?  |    |                  |
-            #?  |    |                  Addressing mode 0b00 -> Immediate, 0b01 -> Direct, 0b10 -> Indirect, 0b11 -> Relative 
-            #?  |    Operand (16 bits)
-            #?  Opcode (4 bits)
-            #? 
-
-            info("Machine Opcode + Operand + Addressing Mode", [machine_opcode, machine_operand, machine_addressing_mode])
-
-            # Combine the opcode and operand to create a single integer of bit length 8 (4 bits for the opcode and 4 bits for the operand)
-            # bitshift the opcode 4 bits to the left and then bitwise OR it with the operand
-            machine_instruction = int(machine_opcode) << 4 | int(machine_operand)
-
-            info("Machine Instruction", machine_instruction)
-            machine_instruction_hex = hex(machine_instruction)
-
-            info("Hex Machine Instruction", machine_instruction_hex)
-            machine_code.append(machine_instruction)
-
-            clear()
-            info("Machine Code", machine_code)
-
-            lineCount += 1
-            continue_()
-
-        return machine_code  # Convert the list of machine code instructions to a single integer (hexadecimal)
-
+            #= The final instruction will be a 16 bit number:
+            #= 0000 0000 0000 0000          
+            #= |__/ |/|__________/
+            #= |    | |
+            #= |    | Operand
+            #= |    |
+            #= |    Address Mode
+            #= Opcode            
+            
     def read(self, address):
         return self.memory[address]
 
