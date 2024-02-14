@@ -189,6 +189,9 @@ def print_instruction(count, instruction):  # ? Helper function to print the ins
 def clear():
     print("\033c", end="")  # Clear the console by printing the escape character
 
+def bin_str(num):
+    return str(f"0b{bin(num)[2:].zfill(8)}")
+
 
 class Memory:
     def __init__(self, size):
@@ -197,6 +200,23 @@ class Memory:
         self.size = size  # The size of the memory
         self.namedAddresses = {}  # A dictionary to store named addresses
 
+    def generate_instruction(self, opcode, operand, addr_mode=0x0):
+        #? Generate the instruction by combining the opcode and operand
+        #^ Convert the opcode to its machine code equivalent
+        opcode = opcodes[opcode]["machine_num"]
+        info("Opcode", opcode)
+        info("Operand", operand)
+
+        #^ Combine the opcode and address mode to form the first 6 bits of the instruction
+        instruction = (opcode << 0x2) | addr_mode
+        info("Instruction", instruction)
+
+        #^ Combine the instruction and operand to form the full 8 bit instruction
+        instruction = (instruction << 0x4) | operand
+        info("Instruction", bin(instruction))
+
+        return instruction
+    
     def load_program(self, start_address=0x0):
         #? Load the program into memory starting at the specified address
         #? The program is loaded from a file called "test.asr" in the same directory as the script
@@ -223,12 +243,20 @@ class Memory:
             #? Split the line into the opcode and operand
             opcode, *operand = line.split(" ")
 
+            info("Opcode", opcode)
+            info("Operand", operand)
+
             if opcode not in opcodes:
                 raise SyntaxError(error("Unknown opcode", i, line))
             
             #^ Check if the number of operands is correct
             if len(operand) != opcodes[opcode]["operands"]:
                 raise SyntaxError(error("Incorrect number of operands", i, line))
+
+            #^ Check if the opcode needs an operand
+            if opcodes[opcode]["operands"] == 0:
+                operand = 0x0
+
             
             #^ Check if the opcode is DAT - create a named address
             if opcode == "DAT":
@@ -262,18 +290,7 @@ class Memory:
                     else:
                         raise ValueError(error("Uninitialised Address address", i, line))
                     
-            #^ Convert the opcode to its machine code equivalent
-            opcode = opcodes[opcode]["machine_num"]
-            info("Opcode", opcode)
-            info("Operand", operand)
-
-            #^ Combine the opcode and address mode to form the first 6 bits of the instruction
-            instruction = (opcode << 0x2) | addr_mode
-            info("Instruction", instruction)
-
-            #^ Combine the instruction and operand to form the full 8 bit instruction
-            instruction = (instruction << 0x4) | operand
-            info("Instruction", instruction)
+            instruction = self.generate_instruction(opcode, operand, addr_mode)
 
             #^ Write the instruction to memory
             self.write(instruction, start_address + i)   
@@ -372,20 +389,38 @@ class CPU:
     def decode(self):
         # Decode:
         # 1. Split the data in the memory data register into the opcode and operand
-        # 2. Return the opcode and operand
-        opcode = (
-            self.mdr >> 4
-        )  # Shift the data in the memory data register 4 bits to the right to get the opcode
-        operand = self.mdr & 0xF
-        return opcode, operand
-    
-    
+        # convert the instruction to binary
+        instruction = bin_str(self.mdr)
+        # get the opcode
+        opcode = int(instruction[:4], 2) # get the first 4 bits of the instruction
+        # get the address mode
+        address_mode = int(instruction[4:6], 2) # get the next 2 bits of the instruction
+        # get the operand
+        operand = int(instruction[6:], 2) # get the last 2 bits of the instruction
 
-    def execute(self, opcode, operand, instructionNum):
-        # Convert named address to actual memory address
-        if isinstance(operand, str):
-            operand = self.memory.namedAddresses[operand]
+        info("Opcode", opcode)
+        info("Address Mode", address_mode)
+        info("Operand", operand)
+        
+        # 2. Return the opcode and operand and address mode
+        return opcode, operand, address_mode
+        
+    
+    def get_operand(self, address_mode, operand):
+        if address_mode == 0x0: #? Direct
+            return self.memory.read(operand)
+        elif address_mode == 0x1: 
+            return self.memory.read(self.memory.read(operand))
+        elif address_mode == 0x2:
+            return operand
+        else:
+            return -1   
 
+    def execute(self, opcode, operand, instructionNum, address_mode=0x0):
+        info("Opcode", opcode)
+        operand = self.get_operand(address_mode, operand)
+        info("Operand", operand)
+        # Execute:
         if opcode == 0x0:
             # HLT - Halt the program
             print_instruction(instructionNum, "HLT - Halt the program")
@@ -583,4 +618,7 @@ def main():
     cpu.run() # Run the program
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        error("Error handling execution", e)
