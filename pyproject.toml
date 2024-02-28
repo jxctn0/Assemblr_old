@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "assemblr-old"
+version = "0.1.0"
+description = ""
+authors = ["Joshua Cotugno <jxctno@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+configparser = "^6.0.1"
+pycairo = "^1.26.0"
+pygobject = "^3.46.0"
+pango = "^0.0.1"
+pgi = "^0.0.11.2"
+serial = "^0.0.97"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

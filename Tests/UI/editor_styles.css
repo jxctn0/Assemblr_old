@@ -1,0 +1,9 @@
+/* Styles for the editor - GTK CSS FILE */
+/* Path: Tests/UI/editor_styles.css */
+
+#MainEditor {
+    font-size: 12px;
+    font-family: "Monospace";
+    color: #000000;
+    background-color: #ffffff;
+}

@@ -4,6 +4,8 @@ import time, math
 verbose = "ic"
 mode = "h"  # h for hex, d for decimal, b for binary
 
+program_path = os.path.join(os.getcwd(), "test.asr")
+
 colors = {
     "foreground": {
         "black": "\u001b[30m",
@@ -48,6 +50,10 @@ COLORS = {
     # Green background
     "RAMBACKGROUND": colors["background"]["green"],
 }
+
+opcode_ls = [
+    "HLT", "SAV", "LDA", "ADD", "SUB", "OUT", "INP", "BAD", "BOR", "BXR", "BNT", "JMP", "JEZ", "JGZ", "JLZ", "SIG", "DAT"
+]
 
 opcodes = {
     "HLT": {
@@ -229,7 +235,7 @@ class Memory:
         # ? If the operand is a named address, the address is looked up in the namedAddresses dictionary and used as the operand
         # ? The machine code and operand are then combined to form the instruction and written to memory at the specified address
 
-        program = open("test.asr", "r").read().split("\n")
+        program = open(program_path, "r").readlines()
         info("Program", program)
 
         for i, line in enumerate(program):
@@ -395,30 +401,30 @@ class CPU:
         # 1. Copy the address in the program counter to the memory address register
         # 2. Copy the data from the memory at the address in the memory address register to the memory data register
         # 3. Increment the program counter
+
         self.mar = self.pc
         self.mdr = self.memory.read(self.mar)
         self.pc += 1
 
     def decode(self):
         # Decode:
-        # 1. Split the data in the memory data register into the opcode and operand
-        # convert the instruction to binary
-        instruction = bin_str(self.mdr)
-        # get the opcode
-        opcode = int(instruction[:4], 2)  # get the first 4 bits of the instruction
-        # get the address mode
-        address_mode = int(
-            instruction[4:6], 2
-        )  # get the next 2 bits of the instruction
-        # get the operand
-        operand = int(instruction[6:], 2)  # get the last 2 bits of the instruction
+        # 1. Extract the instriction from the memory data register - 10bits
+        # 2. Extract the opcode from the instruction (first 4 bits)
+        # 3. Extract the address mode from the instruction (next 2 bits)
+        # 4. Extract the operand from the instruction (last 2 bits)
+        # 5. Return the opcode, operand and address mode
 
-        info("Opcode", opcode)
-        info("Address Mode", address_mode)
-        info("Operand", operand)
+        instruction = self.mdr
+        info("Instruction", instruction)
 
-        # 2. Return the opcode and operand and address mode
-        return opcode, operand, address_mode
+        # remove the 0b prefix
+        instruction = instruction[2:].zfill(10)
+
+        opcode = instruction[0:4]
+        addrMode = instruction[4:6]
+        operand = instruction[6:]
+
+        return opcode, operand, addrMode
 
     def get_operand(self, address_mode, operand):
         if address_mode == 0x0:  # ? Direct
@@ -427,8 +433,7 @@ class CPU:
             return self.memory.read(self.memory.read(operand))
         elif address_mode == 0x2:
             return operand
-        else:
-            return -1
+        
 
     def execute(self, opcode, operand, instructionNum, address_mode=0x0):
 
@@ -630,14 +635,12 @@ def main():
     memory = Memory((2**7))  # Example memory size of 2**7 (128 bytes)
     memory.load_program(0)  # Load the program into memory starting at address 0
     info("Program Loaded", memory.memory)
-    continue_()
+
+    #continue_()
 
     cpu = CPU(memory)  # Create a CPU object with the memory object
     cpu.run()  # Run the program
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        error("Error handling execution", e)
+    main()
