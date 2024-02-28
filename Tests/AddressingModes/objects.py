@@ -170,6 +170,7 @@ There was an error when handling the exception:
 {colors['foreground']["red"]}=>{colors['formatting']["reset"]} {str(lineNum).zfill(2)} | {line}
 """
 
+
 def info(name, message):
     if "i" in verbose:
         print(
@@ -178,6 +179,7 @@ def info(name, message):
 {message}
 """
         )
+        #! continue_()
     else:
         pass
 
@@ -189,6 +191,7 @@ def print_instruction(count, instruction):  # ? Helper function to print the ins
 def clear():
     print("\033c", end="")  # Clear the console by printing the escape character
 
+
 def bin_str(num):
     return str(f"0b{bin(num)[2:].zfill(8)}")
 
@@ -198,49 +201,51 @@ class Memory:
         self.memory = [0x0] * size  # Create a list of 0s of the specified size
         self.freeMem = 0x0  # The next free memory address
         self.size = size  # The size of the memory
+        self.progSize = 0x0  # The size of the program
         self.namedAddresses = {}  # A dictionary to store named addresses
 
     def generate_instruction(self, opcode, operand, addr_mode=0x0):
-        #? Generate the instruction by combining the opcode and operand
-        #^ Convert the opcode to its machine code equivalent
+        # ? Generate the instruction by combining the opcode and operand
+        # ^ Convert the opcode to its machine code equivalent
         opcode = opcodes[opcode]["machine_num"]
         info("Opcode", opcode)
         info("Operand", operand)
 
-        #^ Combine the opcode and address mode to form the first 6 bits of the instruction
+        # ^ Combine the opcode and address mode to form the first 6 bits of the instruction
         instruction = (opcode << 0x2) | addr_mode
         info("Instruction", instruction)
 
-        #^ Combine the instruction and operand to form the full 8 bit instruction
+        # ^ Combine the instruction and operand to form the full 8 bit instruction
         instruction = (instruction << 0x4) | operand
         info("Instruction", bin(instruction))
 
         return instruction
-    
+
     def load_program(self, start_address=0x0):
-        #? Load the program into memory starting at the specified address
-        #? The program is loaded from a file called "test.asr" in the same directory as the script
-        #? The program is loaded line by line and each line is split into the opcode and operand
-        #? The opcode is then converted to its machine code equivalent and the operand is converted to a hexadecimal number
-        #? If the operand is a named address, the address is looked up in the namedAddresses dictionary and used as the operand
-        #? The machine code and operand are then combined to form the instruction and written to memory at the specified address
+        # ? Load the program into memory starting at the specified address
+        # ? The program is loaded from a file called "test.asr" in the same directory as the script
+        # ? The program is loaded line by line and each line is split into the opcode and operand
+        # ? The opcode is then converted to its machine code equivalent and the operand is converted to a hexadecimal number
+        # ? If the operand is a named address, the address is looked up in the namedAddresses dictionary and used as the operand
+        # ? The machine code and operand are then combined to form the instruction and written to memory at the specified address
 
         program = open("test.asr", "r").read().split("\n")
+        info("Program", program)
 
         for i, line in enumerate(program):
-            #^ Remove Comments and whitespace
-            #? Remove Comment strings
+            # ^ Remove Comments and whitespace
+            # ? Remove Comment strings
             line = line.split(";")[0]
-
-            #? Remove leading and trailing whitespace
+            info(f"Line {i}", line)
+            # ? Remove leading and trailing whitespace
             line = line.strip()
 
-            #? Skip empty lines
+            # ? Skip empty lines
             if line == "":
                 continue
 
-            #^ Get the opcode and operand
-            #? Split the line into the opcode and operand
+            # ^ Get the opcode and operand
+            # ? Split the line into the opcode and operand
             opcode, *operand = line.split(" ")
 
             info("Opcode", opcode)
@@ -248,62 +253,70 @@ class Memory:
 
             if opcode not in opcodes:
                 raise SyntaxError(error("Unknown opcode", i, line))
-            
-            #^ Check if the number of operands is correct
+
+            # ^ Check if the number of operands is correct
             if len(operand) != opcodes[opcode]["operands"]:
                 raise SyntaxError(error("Incorrect number of operands", i, line))
 
-            #^ Check if the opcode needs an operand
+            # ^ Check if the opcode needs an operand
             if opcodes[opcode]["operands"] == 0:
                 operand = 0x0
 
-            
-            #^ Check if the opcode is DAT - create a named address
+            # ^ Check if the opcode is DAT - create a named address
             if opcode == "DAT":
-                #? Get the name of the address
+                # ? Get the name of the address
                 name = operand[0]
-                #? Get the address - will be length of the memory + 1 OR the next free memory address, whichever is lesser
+                # ? Get the address - will be length of the memory + 1 OR the next free memory address, whichever is lesser
                 address = min(len(self.memory) + 1, self.freeMem)
-                #? Create an indirect reference for the named address
+                # ? Create an indirect reference for the named address
                 opcode = address
-                #? Save the address in the named addresses dictionary
+                # ? Save the address in the named addresses dictionary
                 self.namedAddresses[name] = address
 
-            #^ Check the address mode
-            if opcodes[opcode]["operands"] == "@": #= Mode is indirect
+            # ^ Check the address mode
+            if opcodes[opcode]["operands"] == "@":  # = Mode is indirect
                 addr_mode = 0x2
-            elif opcodes[opcode]["operands"] == "#": #= Mode is immediate
+            elif opcodes[opcode]["operands"] == "#":  # = Mode is immediate
                 addr_mode = 0x1
-            else: #= Mode is direct
+            else:  # = Mode is direct
                 addr_mode = 0x0
-            
-            #^ Check if the operand is a named address
-            if operand: #! if the operand is not empty (so this doesn't apply to instructions like HLT)
+
+            # ^ Check if the operand is a named address
+            if (
+                operand
+            ):  #! if the operand is not empty (so this doesn't apply to instructions like HLT)
                 try:
                     operand = int(operand[0], 16)
-                    #= Operand is a hexadecimal number, continue
+                    # = Operand is a hexadecimal number, continue
                 except ValueError:
-                    #= Operand is a named address
+                    # = Operand is a named address
                     if operand[0] in self.namedAddresses:
-                        operand = self.namedAddresses[operand[0]] #= Will return the address associated with the named address
-                        addr_mode = 0x2 #? Set the address mode to indirect because the operand is a named address (pointing at a pointer)
+                        operand = self.namedAddresses[
+                            operand[0]
+                        ]  # = Will return the address associated with the named address
+                        addr_mode = 0x2  # ? Set the address mode to indirect because the operand is a named address (pointing at a pointer)
                     else:
-                        raise ValueError(error("Uninitialised Address address", i, line))
-                    
+                        raise ValueError(
+                            error("Uninitialised Address address", i, line)
+                        )
+
             instruction = self.generate_instruction(opcode, operand, addr_mode)
 
-            #^ Write the instruction to memory
-            self.write(instruction, start_address + i)   
+            # ^ Write the instruction to memory
+            self.write(bin(instruction), (start_address - 1) + i)
 
-            #= The final instruction will be a 16 bit number:
-            #= 0000 0000 0000 0000          
-            #= |__/ |/|__________/
-            #= |    | |
-            #= |    | Operand
-            #= |    |
-            #= |    Address Mode
-            #= Opcode            
-            
+            # = The final instruction will be a 16 bit number:
+            # = 0000 0000 0000 0000
+            # = |__/ |/|__________/
+            # = |    | |
+            # = |    | Operand
+            # = |    |
+            # = |    Address Mode
+            # = Opcode
+
+        # ? Save the size of the program
+        self.progSize = len(program)
+
     def read(self, address):
         return self.memory[address]
 
@@ -392,31 +405,33 @@ class CPU:
         # convert the instruction to binary
         instruction = bin_str(self.mdr)
         # get the opcode
-        opcode = int(instruction[:4], 2) # get the first 4 bits of the instruction
+        opcode = int(instruction[:4], 2)  # get the first 4 bits of the instruction
         # get the address mode
-        address_mode = int(instruction[4:6], 2) # get the next 2 bits of the instruction
+        address_mode = int(
+            instruction[4:6], 2
+        )  # get the next 2 bits of the instruction
         # get the operand
-        operand = int(instruction[6:], 2) # get the last 2 bits of the instruction
+        operand = int(instruction[6:], 2)  # get the last 2 bits of the instruction
 
         info("Opcode", opcode)
         info("Address Mode", address_mode)
         info("Operand", operand)
-        
+
         # 2. Return the opcode and operand and address mode
         return opcode, operand, address_mode
-        
-    
+
     def get_operand(self, address_mode, operand):
-        if address_mode == 0x0: #? Direct
+        if address_mode == 0x0:  # ? Direct
             return self.memory.read(operand)
-        elif address_mode == 0x1: 
+        elif address_mode == 0x1:
             return self.memory.read(self.memory.read(operand))
         elif address_mode == 0x2:
             return operand
         else:
-            return -1   
+            return -1
 
     def execute(self, opcode, operand, instructionNum, address_mode=0x0):
+
         info("Opcode", opcode)
         operand = self.get_operand(address_mode, operand)
         info("Operand", operand)
@@ -569,19 +584,21 @@ class CPU:
                 if self.pc >= len(self.memory.memory):
                     raise ValueError("Program Counter exceeded memory size")
                 self.fetch()
-                opcode, operand = self.decode()
-                if not self.execute(opcode, operand):
+                opcode, operand, addrMode = self.decode()
+                if not self.execute(
+                    opcode, operand, address_mode=addrMode, instructionNum=self.pc - 1
+                ):
                     break  # HLT encountered, terminate program
-        except Exception as e:
-            error("Error handling execution", self.pc - 1, f"{opcode} {operand}")
-            print(f"Error: {e}")
+        # except Exception as e:
+        #     error("Error handling execution", self.pc - 1, f"{opcode} {operand}")
+        #     print(f"Error: {e}")
         except KeyboardInterrupt:
             print("Program terminated by user.")
         finally:
             print("Program terminated.")
 
     def print_(self):
-        overscore = "\u203E"
+        overscore = "\u203E"  # ‾
         underscore = "_"
         if mode == "h":
             pc = str(hex(self.pc)).zfill(2)
@@ -606,16 +623,18 @@ PC | {pc} |  ACC | {acc} |  MAR | {mar} |  MDR | {mdr} |
     ‾{overscore * len(pc)}‾        ‾{overscore * len(acc)}‾        ‾{overscore * len(mar)}‾        ‾{overscore * len(mdr)}‾
             """
         )
-
         self.memory.print()
 
 
 def main():
     memory = Memory((2**7))  # Example memory size of 2**7 (128 bytes)
     memory.load_program(0)  # Load the program into memory starting at address 0
+    info("Program Loaded", memory.memory)
+    continue_()
 
-    cpu = CPU(memory) # Create a CPU object with the memory object
-    cpu.run() # Run the program
+    cpu = CPU(memory)  # Create a CPU object with the memory object
+    cpu.run()  # Run the program
+
 
 if __name__ == "__main__":
     try:
