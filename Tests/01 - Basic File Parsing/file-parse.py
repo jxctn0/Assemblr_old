@@ -1,19 +1,11 @@
 #!/bin/env python3
 
 import re
-<<<<<<< HEAD
-import argparse
-import time
-
-# Added
-=======
 import sys, argparse
 import time
->>>>>>> 726275daead98c15be28176162a2e27f2961a45b
 
 # GLOBALS
 ACCUMULATOR = 0
-<<<<<<< HEAD
 
 # initialise RAM
 RAM_SIZE = 255  # Specify the desired size of the dictionary (256 for keys 0 to ff)
@@ -34,7 +26,6 @@ def show_ram():
 # initialise STACK
 global STACK
 STACK = []
-=======
 RAM_SIZE = 1024
 RAM = [""] * RAM_SIZE
 USED_RAM = 0
@@ -43,7 +34,6 @@ verbose = True
 
 print(RAM)
 
->>>>>>> 726275daead98c15be28176162a2e27f2961a45b
 
 
 # initialise STACK functions
